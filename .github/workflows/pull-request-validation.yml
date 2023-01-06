@@ -14,7 +14,7 @@ permissions:
   security-events: write # Required by CodeQL
   
 jobs:
-  dotnet-web-ci:
+  dotnet-func-ci:
     runs-on: ubuntu-latest
 
     steps:
