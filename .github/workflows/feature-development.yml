@@ -1,0 +1,41 @@
+# This workflow is used during feature development, it will perform lightweight CI and deploy through to the development environment.
+
+name: Feature Development
+
+on:
+  workflow_dispatch:
+  push:
+    branches-ignore: [ "main", "integration/*" ]
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read  # This is required for actions/checkout
+  
+jobs:
+  dotnet-web-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: frasermolyneux/actions/dotnet-func-ci@main
+      with:
+        dotnet-project: "repository-func"
+        dotnet-version: 7.0.x
+        src-folder: "src"
+
+  terraform-plan-and-apply-dev:
+    environment: Development
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: frasermolyneux/actions/terraform-plan-and-apply@main
+        with:
+          terraform-folder: "terraform"
+          terraform-var-file: "tfvars/dev.tfvars"
+          terraform-backend-file: "backends/dev.backend.hcl"
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
