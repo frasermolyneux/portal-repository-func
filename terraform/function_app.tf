@@ -34,7 +34,7 @@ resource "azurerm_linux_function_app" "app" {
     "APPINSIGHTS_INSTRUMENTATIONKEY"             = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.app_insights_instrumentation_key_secret.name)
     "APPLICATIONINSIGHTS_CONNECTION_STRING"      = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.app_insights_connection_string_secret.name)
     "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
-    "apim_base_url"                              = data.azurerm_api_management.apim.gateway_url
+    "apim_base_url"                              = data.azurerm_api_management.platform.gateway_url
     "portal_repository_apim_subscription_key"    = ""
     "portal_servers_apim_subscription_key"       = ""
     "geolocation_apim_subscription_key"          = ""
