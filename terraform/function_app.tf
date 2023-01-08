@@ -36,9 +36,9 @@ resource "azurerm_linux_function_app" "app" {
     "APPLICATIONINSIGHTS_CONNECTION_STRING"      = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.app_insights_connection_string_secret.name)
     "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
     "apim_base_url"                              = data.azurerm_api_management.platform.gateway_url
-    "portal_repository_apim_subscription_key"    = ""
-    "portal_servers_apim_subscription_key"       = ""
-    "geolocation_apim_subscription_key"          = ""
+    "portal_repository_apim_subscription_key"    = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.repository_api_subscription_secret.name)
+    "portal_servers_apim_subscription_key"       = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.servers_integration_api_subscription_secret.name)
+    "geolocation_apim_subscription_key"          = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.geolocation_api_subscription_secret.name)
     "repository_api_application_audience"        = format("api://portal-servers-%s", var.environment)
     "servers_api_application_audience"           = format("api://portal-repository-%s", var.environment)
     "geolocation_api_application_audience"       = "api://geolocation-lookup-api-prd"
