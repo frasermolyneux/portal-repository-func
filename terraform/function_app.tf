@@ -41,7 +41,7 @@ resource "azurerm_linux_function_app" "app" {
     "geolocation_apim_subscription_key"          = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.geolocation_api_subscription_secret.name)
     "repository_api_application_audience"        = format("api://portal-servers-%s", var.environment)
     "servers_api_application_audience"           = format("api://portal-repository-%s", var.environment)
-    "geolocation_api_application_audience"       = "api://geolocation-lookup-api-prd" // Development portal should always use production geolocation.
+    "geolocation_api_application_audience"       = format("api://geolocation-lookup-api-%s", var.environment)
     "xtremeidiots_ftp_certificate_thumbprint"    = "65173167144EA988088DA20915ABB83DB27645FA"
   }
 }
