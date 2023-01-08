@@ -20,7 +20,8 @@ resource "azurerm_linux_function_app" "app" {
 
   site_config {
     application_stack {
-      dotnet_version = "7.0"
+      use_dotnet_isolated_runtime = true
+      dotnet_version              = "7.0"
     }
 
     ftps_state          = "Disabled"
