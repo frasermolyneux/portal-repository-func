@@ -30,10 +30,15 @@ resource "azurerm_linux_function_app" "app" {
   }
 
   app_settings = {
-    "READ_ONLY_MODE"                             = var.environment == "prd" ? "true" : "false"
-    "WEBSITE_RUN_FROM_PACKAGE"                   = "1"
-    "APPINSIGHTS_INSTRUMENTATIONKEY"             = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.app_insights_instrumentation_key_secret.name)
-    "APPLICATIONINSIGHTS_CONNECTION_STRING"      = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.app_insights_connection_string_secret.name)
+    "READ_ONLY_MODE"           = var.environment == "prd" ? "true" : "false"
+    "WEBSITE_RUN_FROM_PACKAGE" = "1"
+    // Fixing Azure Portal issues with Key Vault references: 
+    // https://github.com/MicrosoftDocs/azure-docs/issues/66490
+    // https://learn.microsoft.com/en-us/azure/azure-monitor/app/sdk-connection-string?tabs=net#is-the-connection-string-a-secret
+    //"APPINSIGHTS_INSTRUMENTATIONKEY"             = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.app_insights_instrumentation_key_secret.name)
+    //"APPLICATIONINSIGHTS_CONNECTION_STRING"      = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.app_insights_connection_string_secret.name)
+    "APPINSIGHTS_INSTRUMENTATIONKEY"             = azurerm_application_insights.ai.instrumentation_key
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"      = azurerm_application_insights.ai.connection_string
     "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
     "apim_base_url"                              = data.azurerm_api_management.platform.gateway_url
     "portal_repository_apim_subscription_key"    = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.repository_api_subscription_secret.name)
