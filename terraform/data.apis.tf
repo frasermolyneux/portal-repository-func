@@ -4,6 +4,8 @@ data "azurerm_api_management_api" "geolocation_api" {
   name                = "geolocation-api"
   api_management_name = data.azurerm_api_management.platform.name
   resource_group_name = data.azurerm_api_management.platform.resource_group_name
+
+  revision = "1"
 }
 
 data "azurerm_api_management_api" "repository_api" {
@@ -12,6 +14,8 @@ data "azurerm_api_management_api" "repository_api" {
   name                = "repository-api-v2"
   api_management_name = data.azurerm_api_management.platform.name
   resource_group_name = data.azurerm_api_management.platform.resource_group_name
+
+  revision = "1"
 }
 
 data "azurerm_api_management_api" "servers_integration_api" {
@@ -20,4 +24,6 @@ data "azurerm_api_management_api" "servers_integration_api" {
   name                = "servers-integration-api"
   api_management_name = data.azurerm_api_management.platform.name
   resource_group_name = data.azurerm_api_management.platform.resource_group_name
+
+  revision = "1"
 }
