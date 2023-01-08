@@ -7,5 +7,5 @@ data "azuread_service_principal" "servers_integration_api" {
 }
 
 data "azuread_service_principal" "geolocation_api" {
-  display_name = format("geolocation-lookup-api-%s", var.environment)
+  display_name = format("geolocation-lookup-api-prd") // Development portal should always use production geolocation.
 }
