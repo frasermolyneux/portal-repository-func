@@ -1,7 +1,7 @@
 
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.DataContracts;
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -44,7 +44,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         }
 
 
-        [FunctionName("UpdateLiveStats")]
+        [Function(nameof(RunUpdateLiveStats))]
         public async Task RunUpdateLiveStats([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
         {
             var gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };

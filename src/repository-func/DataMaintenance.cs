@@ -1,4 +1,4 @@
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -19,7 +19,7 @@ public class DataMaintenance
         _repositoryApiClient = repositoryApiClient;
     }
 
-    [FunctionName("DataMaintenance")]
+    [Function(nameof(RunDataMaintenance))]
     public async Task RunDataMaintenance([TimerTrigger("0 0 * * * *")] TimerInfo myTimer)
     {
         _log.LogInformation("Performing Data Maintenance");

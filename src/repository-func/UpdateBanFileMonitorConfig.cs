@@ -1,7 +1,7 @@
 using FluentFTP;
 using FluentFTP.Logging;
 
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -27,7 +27,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             this.configuration = configuration;
         }
 
-        [FunctionName("UpdateBanFileMonitorConfig")]
+        [Function(nameof(RunUpdateBanFileMonitorConfig))]
         public async Task RunUpdateBanFileMonitorConfig([TimerTrigger("0 0 */1 * * *")] TimerInfo myTimer)
         {
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 };

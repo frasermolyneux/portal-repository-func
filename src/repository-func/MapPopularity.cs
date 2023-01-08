@@ -1,4 +1,4 @@
-using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -18,7 +18,7 @@ public class MapPopularity
         _repositoryApiClient = repositoryApiClient;
     }
 
-    [FunctionName("RebuildMapPopularity")]
+    [Function(nameof(RunRebuildMapPopularity))]
     public async Task RunRebuildMapPopularity([TimerTrigger("0 0 */1 * * *")] TimerInfo myTimer)
     {
         _log.LogInformation("Performing Rebuild of Map Popularity");
