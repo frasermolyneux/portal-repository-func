@@ -47,6 +47,8 @@ resource "azurerm_linux_function_app" "app" {
     "repository_api_application_audience"        = format("api://portal-repository-%s", var.environment)
     "servers_api_application_audience"           = format("api://portal-servers-%s", var.environment)
     "geolocation_api_application_audience"       = format("api://geolocation-lookup-api-%s", var.environment)
+    "repository_api_path_prefix"                 = "repository-v2"
+    "servers_api_path_prefix"                    = "servers-integration"
     "xtremeidiots_ftp_certificate_thumbprint"    = "65173167144EA988088DA20915ABB83DB27645FA"
   }
 }
