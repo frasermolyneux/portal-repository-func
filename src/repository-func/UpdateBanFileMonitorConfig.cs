@@ -34,7 +34,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, null, 0, 50, null);
             var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, null, null, 0, 50, null);
 
-            if (!gameServersApiResponse.IsSuccess)
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
             {
                 logger.LogCritical("Failed to retrieve game servers from repository");
                 return;

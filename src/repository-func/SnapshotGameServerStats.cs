@@ -38,7 +38,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
             {
-                logger.LogWarning("Failed to retrieve game servers from repository API");
+                logger.LogCritical("Failed to retrieve game servers from repository");
                 return;
             }
 

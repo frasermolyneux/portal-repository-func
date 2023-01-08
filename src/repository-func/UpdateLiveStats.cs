@@ -50,7 +50,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             var gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };
             var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null);
 
-            if (!gameServersApiResponse.IsSuccess)
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
             {
                 logger.LogCritical("Failed to retrieve game servers from repository");
                 return;
