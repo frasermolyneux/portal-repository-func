@@ -45,7 +45,7 @@ resource "azurerm_linux_function_app" "app" {
     "portal_servers_apim_subscription_key"       = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.servers_integration_api_subscription_secret.name)
     "geolocation_apim_subscription_key"          = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.geolocation_api_subscription_secret.name)
     "repository_api_application_audience"        = format("api://portal-repository-%s", var.environment)
-    "servers_api_application_audience"           = format("api://portal-servers-%s", var.environment)
+    "servers_api_application_audience"           = format("api://portal-servers-integration-%s", var.environment)
     "geolocation_api_application_audience"       = format("api://geolocation-lookup-api-%s", var.environment)
     "repository_api_path_prefix"                 = "repository-v2"
     "servers_api_path_prefix"                    = "servers-integration"
