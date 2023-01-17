@@ -21,7 +21,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.7.0" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.10.0" />
     <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.0.841" />
-    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.0.281" />
+    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.0.331" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
