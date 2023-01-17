@@ -103,7 +103,7 @@ jobs:
       function_app_name: ${{ steps.terraform-output.outputs.function_app_name }}
 
   function-app-deploy-dev:
-    environment: DevelopmentWebApps
+    environment: Development
     runs-on: ubuntu-latest
     needs: [dotnet-func-ci, terraform-plan-and-apply-dev]
 
@@ -119,6 +119,7 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
   terraform-plan-prd:
+    if: github.actor != 'dependabot[bot]' # dependabot context has no permissions to prod so skip this check
     environment: Production
     runs-on: ubuntu-latest
     needs: [function-app-deploy-dev]
