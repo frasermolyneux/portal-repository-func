@@ -26,9 +26,11 @@ variable "log_analytics_workspace_name" {}
 
 variable "geo_location_api" {
   type = object({
-    application_name = string
-    name             = string
-    revision         = string
+    application_name     = string
+    application_audience = string
+    apim_api_name        = string
+    apim_api_revision    = string
+    apim_path_prefix     = string
   })
   default = {
     application_name     = "geolocation-api-dev-01"
@@ -41,8 +43,11 @@ variable "geo_location_api" {
 
 variable "repository_api" {
   type = object({
-    name     = string
-    revision = string
+    application_name     = string
+    application_audience = string
+    apim_api_name        = string
+    apim_api_revision    = string
+    apim_path_prefix     = string
   })
   default = {
     application_name     = "portal-repository-dev-01"
@@ -55,8 +60,11 @@ variable "repository_api" {
 
 variable "servers_integration_api" {
   type = object({
-    name     = string
-    revision = string
+    application_name     = string
+    application_audience = string
+    apim_api_name        = string
+    apim_api_revision    = string
+    apim_path_prefix     = string
   })
   default = {
     application_name     = "portal-servers-integration-dev-01"
