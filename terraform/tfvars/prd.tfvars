@@ -42,7 +42,7 @@ servers_integration_api = {
 
 tags = {
   Environment = "prd",
-  Workload    = "portal-repository-func",
+  Workload    = "portal",
   DeployedBy  = "GitHub-Terraform",
   Git         = "https://github.com/frasermolyneux/portal-repository-func"
 }
