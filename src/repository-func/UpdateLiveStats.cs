@@ -13,7 +13,6 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers;
 using XtremeIdiots.Portal.RepositoryApiClient;
 using XtremeIdiots.Portal.RepositoryFunc.Extensions;
-using XtremeIdiots.Portal.ServersApi.Abstractions.Models;
 using XtremeIdiots.Portal.ServersApiClient;
 
 namespace XtremeIdiots.Portal.RepositoryFunc
@@ -101,22 +100,13 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
         private async Task<List<CreateLivePlayerDto>> UpdateLivePlayersFromRcon(GameServerDto gameServerDto)
         {
-            ServerRconStatusResponseDto? serverRconStatusResponseDto = null;
-            try
-            {
-                serverRconStatusResponseDto = await serversApiClient.Rcon.GetServerStatus(gameServerDto.GameServerId);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Failed to get rcon server status for '{gameServerDto.GameServerId}'");
-                return new List<CreateLivePlayerDto>();
-            }
+            var rconQueryApiResponse = await serversApiClient.Rcon.GetServerStatus(gameServerDto.GameServerId);
 
-            if (serverRconStatusResponseDto == null)
-                throw new NullReferenceException($"Server rcon status was null for '{gameServerDto.GameServerId}'");
+            if (!rconQueryApiResponse.IsSuccess || rconQueryApiResponse.Result == null)
+                throw new NullReferenceException($"Failed to retrieve rcon query result for game server {gameServerDto.GameServerId}");
 
             var livePlayerDtos = new List<CreateLivePlayerDto>();
-            foreach (var rconPlayer in serverRconStatusResponseDto.Players)
+            foreach (var rconPlayer in rconQueryApiResponse.Result.Players)
             {
                 var livePlayerDto = new CreateLivePlayerDto
                 {
@@ -161,23 +151,14 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
         private async Task<List<CreateLivePlayerDto>> UpdateLivePlayersFromQuery(GameServerDto gameServerDto, List<CreateLivePlayerDto> livePlayerDtos)
         {
-            ServerQueryStatusResponseDto? serverQueryStatusResponseDto = null;
-            try
-            {
-                serverQueryStatusResponseDto = await serversApiClient.Query.GetServerStatus(gameServerDto.GameServerId);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, $"Failed to get query server status for '{gameServerDto.GameServerId}'");
-                return livePlayerDtos;
-            }
+            var serverQueryApiResponse = await serversApiClient.Query.GetServerStatus(gameServerDto.GameServerId);
 
-            if (serverQueryStatusResponseDto == null)
-                throw new NullReferenceException($"Server query status was null for '{gameServerDto.GameServerId}'");
+            if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result == null)
+                throw new NullReferenceException($"Failed to retrieve server query result for game server {gameServerDto.GameServerId}");
 
             foreach (var livePlayerDto in livePlayerDtos)
             {
-                var queryPlayer = serverQueryStatusResponseDto.Players.SingleOrDefault(qp => qp.Name?.NormalizeName() == livePlayerDto.Name?.NormalizeName());
+                var queryPlayer = serverQueryApiResponse.Result.Players.SingleOrDefault(qp => qp.Name?.NormalizeName() == livePlayerDto.Name?.NormalizeName());
 
                 if (queryPlayer != null)
                 {
@@ -187,11 +168,11 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
             var editGameServerDto = new EditGameServerDto(gameServerDto.GameServerId)
             {
-                LiveTitle = serverQueryStatusResponseDto.ServerName,
-                LiveMap = serverQueryStatusResponseDto.Map,
-                LiveMod = serverQueryStatusResponseDto.Mod,
-                LiveMaxPlayers = serverQueryStatusResponseDto.MaxPlayers,
-                LiveCurrentPlayers = serverQueryStatusResponseDto.PlayerCount,
+                LiveTitle = serverQueryApiResponse.Result.ServerName,
+                LiveMap = serverQueryApiResponse.Result.Map,
+                LiveMod = serverQueryApiResponse.Result.Mod,
+                LiveMaxPlayers = serverQueryApiResponse.Result.MaxPlayers,
+                LiveCurrentPlayers = serverQueryApiResponse.Result.PlayerCount,
                 LiveLastUpdated = DateTime.UtcNow
             };
 
