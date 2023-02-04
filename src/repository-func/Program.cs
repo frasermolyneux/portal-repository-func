@@ -28,7 +28,6 @@ var host = new HostBuilder()
             options.ApiPathPrefix = config["repository_api_path_prefix"] ?? "repository";
         });
 
-
         services.AddServersApiClient(options =>
         {
             options.BaseUrl = config["apim_base_url"] ?? config["servers_base_url"] ?? throw new ArgumentNullException("apim_base_url");
