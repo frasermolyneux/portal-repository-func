@@ -17,12 +17,12 @@
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.1.0" />
 	<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
 	<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
-	<PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.0.20230204.1" />  
+	<PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.0.20230207.2" />  
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.7.0" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.10.0" />
-    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.0.20232.4551" />
-    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.0.20232.4741" />
+    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.0.20232.7661" />
+    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.0.20232.7781" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
