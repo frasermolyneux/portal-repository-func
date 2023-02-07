@@ -54,7 +54,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
                     if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result == null)
                     {
-                        logger.LogWarning($"Failed to retrieve server query result for game server {gameServerDto.GameServerId}");
+                        logger.LogWarning("Failed to retrieve server query result for game server '{GameServerId}'", gameServerDto.GameServerId);
                         continue;
                     }
 

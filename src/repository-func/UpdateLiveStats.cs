@@ -79,7 +79,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 }
                 catch (Exception ex)
                 {
-                    logger.LogError(ex, $"Failed to update live stats for server '{gameServerDto.GameServerId}'");
+                    logger.LogError(ex, "Failed to update live stats for server '{GameServerId}'", gameServerDto.GameServerId);
                     continue;
                 }
 
@@ -103,7 +103,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             var rconQueryApiResponse = await serversApiClient.Rcon.GetServerStatus(gameServerDto.GameServerId);
 
             if (!rconQueryApiResponse.IsSuccess || rconQueryApiResponse.Result == null)
-                throw new NullReferenceException($"Failed to retrieve rcon query result for game server {gameServerDto.GameServerId}");
+                throw new ArgumentNullException($"Failed to retrieve rcon query result for game server {gameServerDto.GameServerId}");
 
             var livePlayerDtos = new List<CreateLivePlayerDto>();
             foreach (var rconPlayer in rconQueryApiResponse.Result.Players)
@@ -154,7 +154,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             var serverQueryApiResponse = await serversApiClient.Query.GetServerStatus(gameServerDto.GameServerId);
 
             if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result == null)
-                throw new NullReferenceException($"Failed to retrieve server query result for game server {gameServerDto.GameServerId}");
+                throw new ArgumentNullException($"Failed to retrieve server query result for game server {gameServerDto.GameServerId}");
 
             foreach (var livePlayerDto in livePlayerDtos)
             {

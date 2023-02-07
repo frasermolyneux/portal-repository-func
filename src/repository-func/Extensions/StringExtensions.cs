@@ -1,10 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace XtremeIdiots.Portal.RepositoryFunc.Extensions
 {
-    public static class StringExtensions
+    public static partial class StringExtensions
     {
         public static string NormalizeName(this string playerName)
         {
@@ -15,7 +13,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc.Extensions
 
             if (toReturn.StartsWith("["))
             {
-                var regex = new Regex("^(\\[.*\\])");
+                var regex = NameRegex();
                 var match = regex.Match(toReturn);
 
                 if (match.Success)
@@ -28,5 +26,8 @@ namespace XtremeIdiots.Portal.RepositoryFunc.Extensions
             toReturn = toReturn.Trim();
             return toReturn;
         }
+
+        [GeneratedRegex("^(\\[.*\\])")]
+        private static partial Regex NameRegex();
     }
 }
