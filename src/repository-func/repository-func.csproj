@@ -9,7 +9,7 @@
     <UserSecretsId>b2dae35a-2e88-4a01-9a60-897cc3ef8bf9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-	<PackageReference Include="FluentFTP" Version="46.0.1" />
+	<PackageReference Include="FluentFTP" Version="46.0.2" />
 	<PackageReference Include="FluentFTP.Logging" Version="1.0.0" />
 	<PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
 	<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.0.0-preview3" />
