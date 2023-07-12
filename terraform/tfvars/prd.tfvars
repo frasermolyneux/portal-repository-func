@@ -18,7 +18,7 @@ log_analytics_workspace_name      = "log-platform-prd-uksouth-01"
 
 geo_location_api = {
   application_name     = "geolocation-api-prd-01"
-  application_audience = "api://geolocation-prd-dev-01"
+  application_audience = "api://geolocation-api-prd-01"
   apim_api_name        = "geolocation-api"
   apim_api_revision    = "1"
   apim_path_prefix     = "geolocation"
