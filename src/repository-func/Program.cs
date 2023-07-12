@@ -48,7 +48,7 @@ var host = new HostBuilder()
             options.BaseUrl = config["apim_base_url"] ?? config["geolocation_base_url"] ?? throw new ArgumentNullException("apim_base_url");
             options.ApiKey = config["geolocation_apim_subscription_key"] ?? throw new ArgumentNullException("geolocation_apim_subscription_key");
             options.ApiAudience = config["geolocation_api_application_audience"] ?? throw new ArgumentNullException("geolocation_api_application_audience");
-            options.ApiPathPrefix = config["geolocation_api_path_prefix"] ?? "repository";
+            options.ApiPathPrefix = config["geolocation_api_path_prefix"] ?? "geolocation";
         });
 
         services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
