@@ -17,15 +17,18 @@ var host = new HostBuilder()
     {
         builder.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
     })
-    .ConfigureFunctionsWorkerDefaults(builder =>
+    .ConfigureFunctionsWorkerDefaults(builder => { }, options =>
     {
-        builder
-            .AddApplicationInsights()
-            .AddApplicationInsightsLogger();
+        options.EnableUserCodeException = true;
     })
     .ConfigureServices((context, services) =>
     {
         var config = context.Configuration;
+
+        services.AddLogging();
+        services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
+        services.AddApplicationInsightsTelemetryWorkerService();
+        services.ConfigureFunctionsApplicationInsights();
 
         services.AddRepositoryApiClient(options =>
         {
@@ -51,8 +54,6 @@ var host = new HostBuilder()
             options.ApiPathPrefix = config["geolocation_api_path_prefix"] ?? "geolocation";
         });
 
-        services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
-        services.AddLogging();
         services.AddMemoryCache();
     })
     .Build();

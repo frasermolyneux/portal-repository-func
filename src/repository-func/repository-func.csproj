@@ -9,20 +9,21 @@
     <UserSecretsId>b2dae35a-2e88-4a01-9a60-897cc3ef8bf9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-	<PackageReference Include="FluentFTP" Version="48.0.1" />
-	<PackageReference Include="FluentFTP.Logging" Version="1.0.0" />
-	<PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.0.0-preview4" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ApplicationInsights" Version="1.0.0-preview4" />
-	<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.2.0" />
-	<PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
-	<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
-	<PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.0.20231019.3" />  
+	  <PackageReference Include="FluentFTP" Version="48.0.1" />
+	  <PackageReference Include="FluentFTP.Logging" Version="1.0.0" />
+	  <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.0.0" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ApplicationInsights" Version="1.0.0-preview4" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.2.0" />
+	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="7.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="7.0.0" />
+	  <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20231021.2" />  
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.15.1" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.19.0" />
-    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.0.20234.11761" />
+    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.84.1" />
     <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.0.20234.11871" />
+    <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.21.0" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
