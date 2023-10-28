@@ -1,6 +1,7 @@
 using FluentFTP;
 using FluentFTP.Logging;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -27,8 +28,14 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             this.configuration = configuration;
         }
 
+        [Function(nameof(RunUpdateBanFileMonitorConfigManual))]
+        public async Task RunUpdateBanFileMonitorConfigManual([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req)
+        {
+            await RunUpdateBanFileMonitorConfig(null);
+        }
+
         [Function(nameof(RunUpdateBanFileMonitorConfig))]
-        public async Task RunUpdateBanFileMonitorConfig([TimerTrigger("0 0 */1 * * *")] TimerInfo myTimer)
+        public async Task RunUpdateBanFileMonitorConfig([TimerTrigger("0 0 */1 * * *")] TimerInfo? myTimer)
         {
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 };
             var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, null, 0, 50, null);
