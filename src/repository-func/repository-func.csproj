@@ -12,7 +12,7 @@
 	  <PackageReference Include="FluentFTP" Version="48.0.3" />
 	  <PackageReference Include="FluentFTP.Logging" Version="1.0.0" />
 	  <PackageReference Include="Microsoft.ApplicationInsights" Version="2.21.0" />
-	  <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.0.0" />
+	  <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.1.0" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ApplicationInsights" Version="1.0.0-preview4" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.0" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.0.0" />
