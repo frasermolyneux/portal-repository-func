@@ -1,2 +1,35 @@
-# portal-repository-func
-Portal Repository Maintenance Function App
+# XtremeIdiots Portal - Repository Func
+
+| Stage | Status |
+| --- | --- |
+| Code Quality | [![Code Quality](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/codequality.yml/badge.svg)](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/codequality.yml) |
+| Feature Development | [![Feature Development](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/feature-development.yml/badge.svg)](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/feature-development.yml) |
+| Pull Request Validation | [![Pull Request Validation](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/pull-request-validation.yml/badge.svg)](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/pull-request-validation.yml) |
+| Destroy Development | [![Destroy Development](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/destroy-development.yml/badge.svg)](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/destroy-development.yml) |
+| Release to Production | [![Release to Production](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/release-to-production.yml/badge.svg)](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/release-to-production.yml) |
+
+---
+
+## Overview
+
+This repository contains the repository maintenance function app for the XtremeIdiots Portal solution.
+
+---
+
+## Related Projects
+
+* [frasermolyneux/azure-landing-zones](https://github.com/frasermolyneux/azure-landing-zones) - The deploy service principal is managed by this project, as is the workload subscription.
+* [frasermolyneux/platform-connectivity](https://github.com/frasermolyneux/platform-connectivity) - The platform connectivity project provides DNS and Azure Front Door shared resources.
+* [frasermolyneux/platform-strategic-services](https://github.com/frasermolyneux/platform-strategic-services) - The platform strategic services project provides a shared services such as API Management and App Service Plans.
+
+---
+
+## Contributing
+
+Please read the [contributing](CONTRIBUTING.md) guidance; this is a learning and development project.
+
+---
+
+## Security
+
+Please read the [security](SECURITY.md) guidance; I am always open to security feedback through email or opening an issue.
