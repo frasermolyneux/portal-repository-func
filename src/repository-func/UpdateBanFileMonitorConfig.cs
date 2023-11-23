@@ -1,8 +1,9 @@
+using System.Net;
 using FluentFTP;
 using FluentFTP.Logging;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -29,9 +30,10 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         }
 
         [Function(nameof(RunUpdateBanFileMonitorConfigManual))]
-        public async Task RunUpdateBanFileMonitorConfigManual([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req)
+        public async Task<HttpResponseData> RunUpdateBanFileMonitorConfigManual([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestData req)
         {
             await RunUpdateBanFileMonitorConfig(null);
+            return req.CreateResponse(HttpStatusCode.OK);
         }
 
         [Function(nameof(RunUpdateBanFileMonitorConfig))]
@@ -47,7 +49,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 return;
             }
 
-            if (!banFileMonitorsApiResponse.IsSuccess)
+            if (!banFileMonitorsApiResponse.IsSuccess || banFileMonitorsApiResponse.Result == null)
             {
                 logger.LogCritical("Failed to retrieve ban file monitors from repository");
                 return;
