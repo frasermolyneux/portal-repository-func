@@ -9,7 +9,7 @@
     <UserSecretsId>b2dae35a-2e88-4a01-9a60-897cc3ef8bf9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-	  <PackageReference Include="FluentFTP" Version="49.0.2" />
+	  <PackageReference Include="FluentFTP" Version="50.0.0" />
 	  <PackageReference Include="FluentFTP.Logging" Version="1.0.0" />
 	  <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.2.0" />
@@ -20,8 +20,8 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.1.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.2" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.21.0" />
-    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.156.1" />
-    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.131.1" />
+    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.157.1" />
+    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.132.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
