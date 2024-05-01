@@ -24,10 +24,6 @@ variable "geo_location_api" {
     keyvault_primary_ref   = string
     keyvault_secondary_ref = string
   })
-  default = {
-    application_audience = "api://geolocation-api-dev-01"
-    apim_path_prefix     = "geolocation"
-  }
 }
 
 variable "repository_api" {
