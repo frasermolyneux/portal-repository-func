@@ -5,7 +5,7 @@ resource "azurerm_linux_function_app" "app" {
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
 
-  service_plan_id     = data.azurerm_service_plan.core.id
+  service_plan_id = data.azurerm_service_plan.core.id
 
   storage_account_name       = azurerm_storage_account.function_app_storage.name
   storage_account_access_key = azurerm_storage_account.function_app_storage.primary_access_key
@@ -48,8 +48,9 @@ resource "azurerm_linux_function_app" "app" {
     "servers_api_application_audience"               = var.servers_integration_api.application_audience
     "servers_api_path_prefix"                        = var.servers_integration_api.apim_path_prefix
 
-    "geolocation_apim_subscription_key_primary"   = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.geolocation_api_subscription_secret_primary.name)
-    "geolocation_apim_subscription_key_secondary" = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.geolocation_api_subscription_secret_secondary.name)
+    "geolocation_base_url"                        = var.geo_location_api.base_url
+    "geolocation_apim_subscription_key_primary"   = format("@Microsoft.KeyVault(SecretUri=%s)", var.geo_location_api.keyvault_primary_ref)
+    "geolocation_apim_subscription_key_secondary" = format("@Microsoft.KeyVault(SecretUri=%s)", var.geo_location_api.keyvault_secondary_ref)
     "geolocation_api_application_audience"        = var.geo_location_api.application_audience
     "geolocation_api_path_prefix"                 = var.geo_location_api.apim_path_prefix
 

@@ -9,9 +9,3 @@ resource "azuread_app_role_assignment" "servers_integration_api" {
   principal_object_id = azurerm_linux_function_app.app.identity.0.principal_id
   resource_object_id  = data.azuread_service_principal.servers_integration_api.object_id
 }
-
-resource "azuread_app_role_assignment" "geolocation_api" {
-  app_role_id         = data.azuread_service_principal.geolocation_api.app_roles[index(data.azuread_service_principal.geolocation_api.app_roles.*.display_name, "LookupApiUser")].id
-  principal_object_id = azurerm_linux_function_app.app.identity.0.principal_id
-  resource_object_id  = data.azuread_service_principal.geolocation_api.object_id
-}
