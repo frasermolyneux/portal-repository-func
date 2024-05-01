@@ -18,19 +18,12 @@ variable "api_management_name" {}
 
 variable "geo_location_api" {
   type = object({
-    application_name     = string
-    application_audience = string
-    apim_api_name        = string
-    apim_api_revision    = string
-    apim_path_prefix     = string
+    base_url               = string
+    application_audience   = string
+    apim_path_prefix       = string
+    keyvault_primary_ref   = string
+    keyvault_secondary_ref = string
   })
-  default = {
-    application_name     = "geolocation-api-dev-01"
-    application_audience = "api://geolocation-api-dev-01"
-    apim_api_name        = "geolocation-api"
-    apim_api_revision    = "1"
-    apim_path_prefix     = "geolocation"
-  }
 }
 
 variable "repository_api" {

@@ -9,11 +9,11 @@ api_management_resource_group_name = "rg-platform-apim-prd-uksouth-01"
 api_management_name                = "apim-platform-prd-uksouth-ty7og2i6qpv3s"
 
 geo_location_api = {
-  application_name     = "geolocation-api-prd-01"
-  application_audience = "api://geolocation-api-prd-01"
-  apim_api_name        = "geolocation-api"
-  apim_api_revision    = "1"
-  apim_path_prefix     = "geolocation"
+  base_url               = "https://apim-geolocation-prd-uksouth-cw66ekkwbpohc.azure-api.net"
+  application_audience   = "api://geolocation-api-prd-01"
+  apim_path_prefix       = "geolocation"
+  keyvault_primary_ref   = "https://kv-3b4ntt73fw4ze-uksouth.vault.azure.net/secrets/portal-repo-func-prd-geolocation-api-key-primary/"
+  keyvault_secondary_ref = "https://kv-3b4ntt73fw4ze-uksouth.vault.azure.net/secrets/portal-repo-func-prd-geolocation-api-key-secondary/"
 }
 
 repository_api = {
