@@ -1,4 +1,5 @@
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.RepositoryApiClient;
@@ -17,6 +18,12 @@ public class DataMaintenance
     {
         _log = log;
         _repositoryApiClient = repositoryApiClient;
+    }
+
+    [Function(nameof(RunDataMaintenanceHttp))]
+    public async Task RunDataMaintenanceHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    {
+        await RunDataMaintenance(null);
     }
 
     [Function(nameof(RunDataMaintenance))]
