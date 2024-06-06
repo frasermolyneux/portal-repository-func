@@ -32,7 +32,7 @@ var host = new HostBuilder()
 
         services.AddRepositoryApiClient(options =>
         {
-            options.BaseUrl = config["apim_base_url"] ?? config["repository_base_url"] ?? throw new ArgumentNullException("apim_base_url");
+            options.BaseUrl = config["repository_base_url"] ?? config["apim_base_url"] ?? throw new ArgumentNullException("apim_base_url");
             options.PrimaryApiKey = config["portal_repository_apim_subscription_key_primary"] ?? throw new ArgumentNullException("portal_repository_apim_subscription_key_primary");
             options.SecondaryApiKey = config["portal_repository_apim_subscription_key_secondary"] ?? throw new ArgumentNullException("portal_repository_apim_subscription_key_secondary");
             options.ApiAudience = config["repository_api_application_audience"] ?? throw new ArgumentNullException("repository_api_application_audience");
@@ -41,7 +41,7 @@ var host = new HostBuilder()
 
         services.AddServersApiClient(options =>
         {
-            options.BaseUrl = config["apim_base_url"] ?? config["servers_base_url"] ?? throw new ArgumentNullException("apim_base_url");
+            options.BaseUrl = config["servers_base_url"] ?? config["apim_base_url"] ?? throw new ArgumentNullException("apim_base_url");
             options.PrimaryApiKey = config["portal_servers_apim_subscription_key_primary"] ?? throw new ArgumentNullException("portal_servers_apim_subscription_key_primary");
             options.SecondaryApiKey = config["portal_servers_apim_subscription_key_secondary"] ?? throw new ArgumentNullException("portal_servers_apim_subscription_key_secondary");
             options.ApiAudience = config["servers_api_application_audience"] ?? throw new ArgumentNullException("servers_api_application_audience");
@@ -50,7 +50,7 @@ var host = new HostBuilder()
 
         services.AddGeoLocationApiClient(options =>
         {
-            options.BaseUrl = config["apim_base_url"] ?? config["geolocation_base_url"] ?? throw new ArgumentNullException("apim_base_url");
+            options.BaseUrl = config["geolocation_base_url"] ?? config["apim_base_url"] ?? throw new ArgumentNullException("apim_base_url");
             options.PrimaryApiKey = config["geolocation_apim_subscription_key_primary"] ?? throw new ArgumentNullException("geolocation_apim_subscription_key_primary");
             options.SecondaryApiKey = config["geolocation_apim_subscription_key_secondary"] ?? throw new ArgumentNullException("geolocation_apim_subscription_key_secondary");
             options.ApiAudience = config["geolocation_api_application_audience"] ?? throw new ArgumentNullException("geolocation_api_application_audience");
