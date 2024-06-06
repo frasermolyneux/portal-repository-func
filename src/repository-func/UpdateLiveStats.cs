@@ -196,6 +196,10 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                     livePlayerDto.Long = lookupAddressResponse.Result.Longitude;
                     livePlayerDto.CountryCode = lookupAddressResponse.Result.CountryCode;
                 }
+                else
+                {
+                    lookupAddressResponse.Errors.ForEach(ex => telemetryClient.TrackException(new ApplicationException(ex)));
+                }
             }
 
             return livePlayerDtos;
