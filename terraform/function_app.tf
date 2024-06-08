@@ -55,5 +55,8 @@ resource "azurerm_linux_function_app" "app" {
     "geolocation_api_path_prefix"                 = var.geo_location_api.apim_path_prefix
 
     "xtremeidiots_ftp_certificate_thumbprint" = "65173167144EA988088DA20915ABB83DB27645FA"
+
+    "APPINSIGHTS_PROFILERFEATURE_VERSION"  = "1.0.0"
+    "DiagnosticServices_EXTENSION_VERSION" = "~3"
   }
 }
