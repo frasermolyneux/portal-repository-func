@@ -3,6 +3,7 @@ using System.Net;
 using FluentFTP;
 using FluentFTP.Logging;
 
+using Microsoft.ApplicationInsights;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
@@ -19,15 +20,18 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         private readonly ILogger<UpdateBanFileMonitorConfig> logger;
         private readonly IRepositoryApiClient repositoryApiClient;
         private readonly IConfiguration configuration;
+        private readonly TelemetryClient telemetryClient;
 
         public UpdateBanFileMonitorConfig(
             ILogger<UpdateBanFileMonitorConfig> logger,
             IRepositoryApiClient repositoryApiClient,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            TelemetryClient telemetryClient)
         {
             this.logger = logger;
             this.repositoryApiClient = repositoryApiClient;
             this.configuration = configuration;
+            this.telemetryClient = telemetryClient;
         }
 
         [Function(nameof(RunUpdateBanFileMonitorConfigManual))]
@@ -91,6 +95,10 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                                     await repositoryApiClient.BanFileMonitors.CreateBanFileMonitor(createBanFileMonitorDto);
                                 }
                             }
+                            catch (Exception ex)
+                            {
+                                telemetryClient.TrackException(ex, gameServerDto.TelemetryProperties);
+                            }
                             finally
                             {
                                 ftpClient?.Dispose();
@@ -124,6 +132,10 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                                         var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, $"/{gameServerDto.LiveMod}/ban.txt");
                                         await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(editBanFileMonitorDto);
                                     }
+                                }
+                                catch (Exception ex)
+                                {
+                                    telemetryClient.TrackException(ex, banFileMonitorDto.TelemetryProperties);
                                 }
                                 finally
                                 {
