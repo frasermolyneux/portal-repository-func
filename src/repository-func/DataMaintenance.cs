@@ -13,7 +13,6 @@ public class DataMaintenance
 
     public DataMaintenance(
         ILogger<DataMaintenance> log,
-
         IRepositoryApiClient repositoryApiClient)
     {
         _log = log;

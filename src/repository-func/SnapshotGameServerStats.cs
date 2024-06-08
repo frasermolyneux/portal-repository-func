@@ -45,32 +45,35 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
             foreach (var gameServerDto in gameServersApiResponse.Result.Entries)
             {
-                if (string.IsNullOrWhiteSpace(gameServerDto.Hostname) || gameServerDto.QueryPort == 0)
-                    continue;
-
-                if (!string.IsNullOrWhiteSpace(gameServerDto.RconPassword))
+                using (logger.BeginScope(gameServerDto.TelemetryProperties))
                 {
-                    var serverQueryApiResponse = await serversApiClient.Query.GetServerStatus(gameServerDto.GameServerId);
-
-                    if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result == null)
-                    {
-                        logger.LogWarning($"Failed to retrieve server query result for game server {gameServerDto.GameServerId}");
+                    if (string.IsNullOrWhiteSpace(gameServerDto.Hostname) || gameServerDto.QueryPort == 0)
                         continue;
-                    }
 
-                    if (!string.IsNullOrWhiteSpace(serverQueryApiResponse.Result.Map))
+                    if (!string.IsNullOrWhiteSpace(gameServerDto.RconPassword))
                     {
-                        if (!memoryCache.TryGetValue($"{gameServerDto.GameType}-{serverQueryApiResponse.Result.Map}", out bool mapExists))
+                        var serverQueryApiResponse = await serversApiClient.Query.GetServerStatus(gameServerDto.GameServerId);
+
+                        if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result == null)
                         {
-                            var mapDto = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, serverQueryApiResponse.Result.Map);
-
-                            if (mapDto == null)
-                                await repositoryApiClient.Maps.CreateMap(new CreateMapDto(gameServerDto.GameType, serverQueryApiResponse.Result.Map));
-
-                            memoryCache.Set($"{gameServerDto.GameType}-{serverQueryApiResponse.Result.Map}", true);
+                            logger.LogWarning($"Failed to retrieve server query result for game server {gameServerDto.GameServerId}");
+                            continue;
                         }
 
-                        gameServerStatDtos.Add(new CreateGameServerStatDto(gameServerDto.GameServerId, serverQueryApiResponse.Result.PlayerCount, serverQueryApiResponse.Result.Map));
+                        if (!string.IsNullOrWhiteSpace(serverQueryApiResponse.Result.Map))
+                        {
+                            if (!memoryCache.TryGetValue($"{gameServerDto.GameType}-{serverQueryApiResponse.Result.Map}", out bool mapExists))
+                            {
+                                var mapDto = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, serverQueryApiResponse.Result.Map);
+
+                                if (mapDto == null)
+                                    await repositoryApiClient.Maps.CreateMap(new CreateMapDto(gameServerDto.GameType, serverQueryApiResponse.Result.Map));
+
+                                memoryCache.Set($"{gameServerDto.GameType}-{serverQueryApiResponse.Result.Map}", true);
+                            }
+
+                            gameServerStatDtos.Add(new CreateGameServerStatDto(gameServerDto.GameServerId, serverQueryApiResponse.Result.PlayerCount, serverQueryApiResponse.Result.Map));
+                        }
                     }
                 }
             }

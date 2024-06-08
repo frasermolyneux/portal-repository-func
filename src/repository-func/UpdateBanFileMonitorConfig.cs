@@ -1,4 +1,5 @@
 using System.Net;
+
 using FluentFTP;
 using FluentFTP.Logging;
 
@@ -57,50 +58,18 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
             foreach (var gameServerDto in gameServersApiResponse.Result.Entries)
             {
-                if (string.IsNullOrWhiteSpace(gameServerDto.LiveMod))
-                    continue;
-
-                var banFileMonitorDto = banFileMonitorsApiResponse.Result.Entries.SingleOrDefault(bfm => bfm.GameServerId == gameServerDto.GameServerId);
-
-                if (banFileMonitorDto == null)
+                using (logger.BeginScope(gameServerDto.TelemetryProperties))
                 {
-                    if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname) && !string.IsNullOrWhiteSpace(gameServerDto.FtpUsername) && !string.IsNullOrWhiteSpace(gameServerDto.FtpPassword) && gameServerDto.FtpPort != null)
-                    {
-                        logger.LogInformation($"BanFileMonitor for '{gameServerDto.Title}' does not exist - creating");
+                    if (string.IsNullOrWhiteSpace(gameServerDto.LiveMod))
+                        continue;
 
-                        AsyncFtpClient? ftpClient = null;
-                        try
-                        {
-                            ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: new FtpLogAdapter(logger));
-                            ftpClient.ValidateCertificate += (control, e) =>
-                            {
-                                if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
-                                { // Account for self-signed FTP certificate for self-hosted servers
-                                    e.Accept = true;
-                                }
-                            };
+                    var banFileMonitorDto = banFileMonitorsApiResponse.Result.Entries.SingleOrDefault(bfm => bfm.GameServerId == gameServerDto.GameServerId);
 
-                            await ftpClient.AutoConnect();
-
-                            if (await ftpClient.FileExists($"/{gameServerDto.LiveMod}/ban.txt"))
-                            {
-                                var createBanFileMonitorDto = new CreateBanFileMonitorDto(gameServerDto.GameServerId, $"/{gameServerDto.LiveMod}/ban.txt", gameServerDto.GameType);
-                                await repositoryApiClient.BanFileMonitors.CreateBanFileMonitor(createBanFileMonitorDto);
-                            }
-                        }
-                        finally
-                        {
-                            ftpClient?.Dispose();
-                        }
-                    }
-                }
-                else
-                {
-                    if (!banFileMonitorDto.FilePath.ToLower().Contains(gameServerDto.LiveMod))
+                    if (banFileMonitorDto == null)
                     {
                         if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname) && !string.IsNullOrWhiteSpace(gameServerDto.FtpUsername) && !string.IsNullOrWhiteSpace(gameServerDto.FtpPassword) && gameServerDto.FtpPort != null)
                         {
-                            logger.LogInformation($"BanFileMonitor for '{gameServerDto.Title}' does not have current mod in path - updating");
+                            logger.LogInformation($"BanFileMonitor for '{gameServerDto.Title}' does not exist - creating");
 
                             AsyncFtpClient? ftpClient = null;
                             try
@@ -116,15 +85,50 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
                                 await ftpClient.AutoConnect();
 
-                                if (await ftpClient.DirectoryExists(gameServerDto.LiveMod))
+                                if (await ftpClient.FileExists($"/{gameServerDto.LiveMod}/ban.txt"))
                                 {
-                                    var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, $"/{gameServerDto.LiveMod}/ban.txt");
-                                    await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(editBanFileMonitorDto);
+                                    var createBanFileMonitorDto = new CreateBanFileMonitorDto(gameServerDto.GameServerId, $"/{gameServerDto.LiveMod}/ban.txt", gameServerDto.GameType);
+                                    await repositoryApiClient.BanFileMonitors.CreateBanFileMonitor(createBanFileMonitorDto);
                                 }
                             }
                             finally
                             {
                                 ftpClient?.Dispose();
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (!banFileMonitorDto.FilePath.ToLower().Contains(gameServerDto.LiveMod))
+                        {
+                            if (!string.IsNullOrWhiteSpace(gameServerDto.FtpHostname) && !string.IsNullOrWhiteSpace(gameServerDto.FtpUsername) && !string.IsNullOrWhiteSpace(gameServerDto.FtpPassword) && gameServerDto.FtpPort != null)
+                            {
+                                logger.LogInformation($"BanFileMonitor for '{gameServerDto.Title}' does not have current mod in path - updating");
+
+                                AsyncFtpClient? ftpClient = null;
+                                try
+                                {
+                                    ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: new FtpLogAdapter(logger));
+                                    ftpClient.ValidateCertificate += (control, e) =>
+                                    {
+                                        if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                                        { // Account for self-signed FTP certificate for self-hosted servers
+                                            e.Accept = true;
+                                        }
+                                    };
+
+                                    await ftpClient.AutoConnect();
+
+                                    if (await ftpClient.DirectoryExists(gameServerDto.LiveMod))
+                                    {
+                                        var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, $"/{gameServerDto.LiveMod}/ban.txt");
+                                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(editBanFileMonitorDto);
+                                    }
+                                }
+                                finally
+                                {
+                                    ftpClient?.Dispose();
+                                }
                             }
                         }
                     }

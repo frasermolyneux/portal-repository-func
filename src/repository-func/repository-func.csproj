@@ -20,8 +20,8 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.2" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.22.0" />
-    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.180.1" />
-    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.143.1" />
+    <PackageReference Include="XtremeIdiots.Portal.RepositoryApiClient" Version="1.1.184.1" />
+    <PackageReference Include="XtremeIdiots.Portal.ServersApiClient" Version="1.1.144.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">

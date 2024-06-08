@@ -1,6 +1,5 @@
 
 using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
@@ -57,44 +56,38 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
             foreach (var gameServerDto in gameServersApiResponse.Result.Entries)
             {
-                if (string.IsNullOrWhiteSpace(gameServerDto.Hostname) || gameServerDto.QueryPort == 0)
-                    continue;
-
-                var livePlayerDtos = new List<CreateLivePlayerDto>();
-
-                try
+                using (logger.BeginScope(gameServerDto.TelemetryProperties))
                 {
-                    if (!string.IsNullOrWhiteSpace(gameServerDto.RconPassword))
+                    if (string.IsNullOrWhiteSpace(gameServerDto.Hostname) || gameServerDto.QueryPort == 0)
+                        continue;
+
+                    var livePlayerDtos = new List<CreateLivePlayerDto>();
+
+                    try
                     {
-                        livePlayerDtos = await UpdateLivePlayersFromRcon(gameServerDto);
-                        livePlayerDtos = await UpdateLivePlayersFromQuery(gameServerDto, livePlayerDtos);
-                        livePlayerDtos = await EnrichPlayersWithGeoLocation(livePlayerDtos);
+                        if (!string.IsNullOrWhiteSpace(gameServerDto.RconPassword))
+                        {
+                            livePlayerDtos = await UpdateLivePlayersFromRcon(gameServerDto);
+                            livePlayerDtos = await UpdateLivePlayersFromQuery(gameServerDto, livePlayerDtos);
+                            livePlayerDtos = await EnrichPlayersWithGeoLocation(livePlayerDtos);
 
-                        await UpdateRecentPlayersWithLivePlayers(livePlayerDtos);
+                            await UpdateRecentPlayersWithLivePlayers(livePlayerDtos);
+                        }
+                        else
+                        {
+                            livePlayerDtos = await UpdateLivePlayersFromQuery(gameServerDto, livePlayerDtos);
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        livePlayerDtos = await UpdateLivePlayersFromQuery(gameServerDto, livePlayerDtos);
+                        logger.LogError(ex, $"Failed to update live stats for server '{gameServerDto.GameServerId}'");
+                        continue;
                     }
+
+                    telemetryClient.TrackMetric("PlayerCount", livePlayerDtos.Count, gameServerDto.TelemetryProperties);
+
+                    await repositoryApiClient.LivePlayers.SetLivePlayersForGameServer(gameServerDto.GameServerId, livePlayerDtos);
                 }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, $"Failed to update live stats for server '{gameServerDto.GameServerId}'");
-                    continue;
-                }
-
-                MetricTelemetry telemetry = new()
-                {
-                    Name = "PlayerCount",
-                    Sum = livePlayerDtos.Count
-                };
-
-                telemetry.Properties.Add("GameServerId", gameServerDto.GameServerId.ToString());
-                telemetry.Properties.Add("GameServerName", gameServerDto.Title);
-
-                telemetryClient.TrackMetric(telemetry);
-
-                await repositoryApiClient.LivePlayers.SetLivePlayersForGameServer(gameServerDto.GameServerId, livePlayerDtos);
             }
         }
 
