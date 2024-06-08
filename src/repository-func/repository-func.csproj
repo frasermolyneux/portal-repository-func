@@ -1,21 +1,23 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>    
-    <RootNamespace>repository_func</RootNamespace>    
+    <RootNamespace>XtremeIdiots.Portal.RepositoryFunc</RootNamespace>    
     <UserSecretsId>b2dae35a-2e88-4a01-9a60-897cc3ef8bf9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
 	  <PackageReference Include="FluentFTP" Version="50.0.1" />
 	  <PackageReference Include="FluentFTP.Logging" Version="1.0.0" />
 	  <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.2.0" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
 	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.6" />
 	  <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20240603.1" />  
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.2" OutputItemType="Analyzer" />

@@ -58,6 +58,8 @@ var host = new HostBuilder()
         });
 
         services.AddMemoryCache();
+
+        services.AddHealthChecks();
     })
     .Build();
 
