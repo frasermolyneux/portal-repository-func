@@ -18,7 +18,7 @@
 	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.7" />
-	  <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20240807.2" />  
+	  <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20240812.2" />  
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.17.4" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.23.0" />
