@@ -66,7 +66,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                             {
                                 var mapDto = await repositoryApiClient.Maps.GetMap(gameServerDto.GameType, serverQueryApiResponse.Result.Map);
 
-                                if (mapDto == null)
+                                if (mapDto.IsNotFound)
                                     await repositoryApiClient.Maps.CreateMap(new CreateMapDto(gameServerDto.GameType, serverQueryApiResponse.Result.Map));
 
                                 memoryCache.Set($"{gameServerDto.GameType}-{serverQueryApiResponse.Result.Map}", true);
