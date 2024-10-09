@@ -16,7 +16,7 @@
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.4.0" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
 	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.0" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.1" />
 	  <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="8.0.8" />
 	  <PackageReference Include="MX.GeoLocation.GeoLocationApi.Client" Version="1.1.20241007.3" />  
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
