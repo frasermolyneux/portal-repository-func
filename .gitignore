@@ -399,3 +399,9 @@ FodyWeavers.xsd
 
 terraform/.terraform.lock.hcl
 terraform/.terraform/*
+
+# Azurite emulator files
+__azurite*
+__blobstorage__/
+__queuestorage__/
+__tablestorage__/
