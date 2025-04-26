@@ -30,7 +30,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         }
 
         [Function(nameof(RunSnapshotGameServerStats))]
-        public async Task RunSnapshotGameServerStats([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
+        public async Task RunSnapshotGameServerStats([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
         {
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };
             var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null);
