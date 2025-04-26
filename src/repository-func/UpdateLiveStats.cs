@@ -1,4 +1,3 @@
-
 using Microsoft.ApplicationInsights;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Caching.Memory;
@@ -7,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using MX.GeoLocation.GeoLocationApi.Client;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
+using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers;
@@ -70,6 +70,9 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                             livePlayerDtos = await UpdateLivePlayersFromRcon(gameServerDto);
                             livePlayerDtos = await UpdateLivePlayersFromQuery(gameServerDto, livePlayerDtos);
                             livePlayerDtos = await EnrichPlayersWithGeoLocation(livePlayerDtos);
+
+                            // Check protected names after players have been loaded
+                            await CheckProtectedNameViolations(gameServerDto, livePlayerDtos);
 
                             await UpdateRecentPlayersWithLivePlayers(livePlayerDtos);
                         }
@@ -241,6 +244,96 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             }
 
             return null;
+        }
+
+        /// <summary>
+        /// Checks if any live players are using protected names that don't belong to them,
+        /// and applies appropriate admin actions if a violation is found.
+        /// </summary>
+        private async Task CheckProtectedNameViolations(GameServerDto gameServer, List<CreateLivePlayerDto> livePlayerDtos)
+        {
+            try
+            {
+                // Get all protected names from the repository (with a reasonable limit)
+                var protectedNamesResponse = await repositoryApiClient.Players.GetProtectedNames(0, 1000);
+
+                if (!protectedNamesResponse.IsSuccess || protectedNamesResponse.Result == null)
+                {
+                    logger.LogWarning("Failed to retrieve protected names from repository");
+                    return;
+                }
+
+                // Check each live player against protected names
+                foreach (var livePlayerDto in livePlayerDtos)
+                {
+                    if (string.IsNullOrEmpty(livePlayerDto.Name) || !livePlayerDto.PlayerId.HasValue)
+                        continue;
+
+                    var playerName = livePlayerDto.Name.Trim().ToLower();
+
+                    // Find any protected name that matches the player's current name
+                    foreach (var protectedName in protectedNamesResponse.Result.Entries)
+                    {
+                        if (playerName.Contains(protectedName.Name.ToLower()) ||
+                            protectedName.Name.ToLower().Contains(playerName))
+                        {
+                            // If the player is not the owner of this protected name
+                            if (livePlayerDto.PlayerId != protectedName.PlayerId)
+                            {
+                                // Get the player record to include in the admin action
+                                var playerResponse = await repositoryApiClient.Players.GetPlayer(livePlayerDto.PlayerId.Value, PlayerEntityOptions.None);
+                                if (!playerResponse.IsSuccess || playerResponse.Result == null)
+                                    continue;
+
+                                // Get the owner player's record for reference
+                                var ownerResponse = await repositoryApiClient.Players.GetPlayer(protectedName.PlayerId, PlayerEntityOptions.None);
+                                if (!ownerResponse.IsSuccess || ownerResponse.Result == null)
+                                    continue;
+
+                                logger.LogInformation($"Protected name violation: Player {playerResponse.Result.Username} ({livePlayerDto.PlayerId}) " +
+                                                     $"is using protected name '{protectedName.Name}' owned by {ownerResponse.Result.Username} ({protectedName.PlayerId})");
+
+                                // Create an admin action ban for the violating player
+                                var adminAction = new CreateAdminActionDto(
+                                    livePlayerDto.PlayerId.Value,
+                                    AdminActionType.Ban,
+                                    $"Protected Name Violation - using '{protectedName.Name}' which is registered to {ownerResponse.Result.Username}"
+                                );
+
+                                await repositoryApiClient.AdminActions.CreateAdminAction(adminAction);
+
+                                if (livePlayerDto.Num != 0)
+                                {
+                                    // If the player is in-game, kick them from the server
+                                    var banResponse = await serversApiClient.Rcon.BanPlayer(gameServer.GameServerId, livePlayerDto.Num);
+                                    if (!banResponse.IsSuccess)
+                                    {
+                                        logger.LogWarning($"Failed to ban player {playerResponse.Result.Username} from server {gameServer.GameServerId}");
+                                    }
+                                }
+
+                                // The player has been banned through the repository
+                                // Future implementation would kick the player from the server as well
+                                telemetryClient.TrackEvent("ProtectedNameViolation", new Dictionary<string, string> {
+                                    { "ViolatingPlayerId", livePlayerDto.PlayerId.ToString() },
+                                    { "ViolatingPlayerName", playerResponse.Result.Username },
+                                    { "OwnerPlayerId", protectedName.PlayerId.ToString() },
+                                    { "OwnerPlayerName", ownerResponse.Result.Username },
+                                    { "ProtectedName", protectedName.Name },
+                                    { "GameServerName", gameServer.Title },
+                                    { "GameServerId", gameServer.GameServerId.ToString() }
+                                });
+
+                                break; // Move to the next player once we've banned this one
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error checking for protected name violations");
+            }
         }
     }
 }
