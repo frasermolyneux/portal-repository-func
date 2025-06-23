@@ -19,19 +19,59 @@ public class DataMaintenance
         _repositoryApiClient = repositoryApiClient;
     }
 
-    [Function(nameof(RunDataMaintenanceHttp))]
-    public async Task RunDataMaintenanceHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    [Function(nameof(RunPruneChatMessagesHttp))]
+    public async Task RunPruneChatMessagesHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
     {
-        await RunDataMaintenance(null);
+        await RunPruneChatMessages(null);
     }
 
-    [Function(nameof(RunDataMaintenance))]
-    public async Task RunDataMaintenance([TimerTrigger("0 0 * * * *")] TimerInfo myTimer)
+    [Function(nameof(RunPruneChatMessages))]
+    public async Task RunPruneChatMessages([TimerTrigger("0 0 * * * *")] TimerInfo? myTimer)
     {
-        _log.LogInformation("Performing Data Maintenance");
-
+        _log.LogInformation("Pruning Chat Messages");
         await _repositoryApiClient.DataMaintenance.PruneChatMessages();
+        _log.LogInformation("Prune Chat Messages completed successfully");
+    }
+
+    [Function(nameof(RunPruneGameServerEventsHttp))]
+    public async Task RunPruneGameServerEventsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    {
+        await RunPruneGameServerEvents(null);
+    }
+
+    [Function(nameof(RunPruneGameServerEvents))]
+    public async Task RunPruneGameServerEvents([TimerTrigger("0 0 1 * * *")] TimerInfo? myTimer)
+    {
+        _log.LogInformation("Pruning Game Server Events");
         await _repositoryApiClient.DataMaintenance.PruneGameServerEvents();
+        _log.LogInformation("Prune Game Server Events completed successfully");
+    }
+
+    [Function(nameof(RunPruneGameServerStatsHttp))]
+    public async Task RunPruneGameServerStatsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    {
+        await RunPruneGameServerStats(null);
+    }
+
+    [Function(nameof(RunPruneGameServerStats))]
+    public async Task RunPruneGameServerStats([TimerTrigger("0 0 2 * * *")] TimerInfo? myTimer)
+    {
+        _log.LogInformation("Pruning Game Server Stats");
         await _repositoryApiClient.DataMaintenance.PruneGameServerStats();
+        _log.LogInformation("Prune Game Server Stats completed successfully");
+    }
+
+    [Function(nameof(RunResetSystemAssignedPlayerTagsHttp))]
+    public async Task RunResetSystemAssignedPlayerTagsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    {
+        await RunResetSystemAssignedPlayerTags(null);
+    }
+
+    [Function(nameof(RunResetSystemAssignedPlayerTags))]
+    public async Task RunResetSystemAssignedPlayerTags([TimerTrigger("0 0 3 * * *")] TimerInfo? myTimer)
+    {
+        _log.LogInformation("Resetting System Assigned Player Tags");
+        await _repositoryApiClient.DataMaintenance.ResetSystemAssignedPlayerTags();
+        _log.LogInformation("Reset System Assigned Player Tags completed successfully");
     }
 }
