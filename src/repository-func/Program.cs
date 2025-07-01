@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 
 using MX.GeoLocation.GeoLocationApi.Client;
 
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 using XtremeIdiots.Portal.RepositoryFunc;
 using XtremeIdiots.Portal.ServersApiClient;
 
@@ -17,10 +17,7 @@ var host = new HostBuilder()
     {
         builder.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
     })
-    .ConfigureFunctionsWorkerDefaults(builder => { }, options =>
-    {
-        options.EnableUserCodeException = true;
-    })
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices((context, services) =>
     {
         var config = context.Configuration;

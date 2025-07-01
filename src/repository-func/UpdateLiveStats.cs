@@ -10,7 +10,7 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.AdminActions;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 using XtremeIdiots.Portal.RepositoryFunc.Extensions;
 using XtremeIdiots.Portal.ServersApiClient;
 
@@ -46,7 +46,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         public async Task RunUpdateLiveStats([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
         {
             var gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
             {
@@ -89,7 +89,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
 
                     telemetryClient.TrackMetric("PlayerCount", livePlayerDtos.Count, gameServerDto.TelemetryProperties);
 
-                    await repositoryApiClient.LivePlayers.SetLivePlayersForGameServer(gameServerDto.GameServerId, livePlayerDtos);
+                    await repositoryApiClient.LivePlayers.V1.SetLivePlayersForGameServer(gameServerDto.GameServerId, livePlayerDtos);
                 }
             }
         }
@@ -129,7 +129,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                             IpAddress = rconPlayer.IpAddress
                         };
 
-                        await repositoryApiClient.Players.CreatePlayer(player);
+                        await repositoryApiClient.Players.V1.CreatePlayer(player);
 
                         playerId = await GetPlayerId(gameServerDto.GameType, rconPlayer.Guid);
                         if (playerId.HasValue)
@@ -172,7 +172,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                 LiveLastUpdated = DateTime.UtcNow
             };
 
-            await repositoryApiClient.GameServers.UpdateGameServer(editGameServerDto);
+            await repositoryApiClient.GameServers.V1.UpdateGameServer(editGameServerDto);
 
             return livePlayerDtos;
         }
@@ -223,7 +223,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             }
 
             if (createRecentPlayerDtos.Any())
-                await repositoryApiClient.RecentPlayers.CreateRecentPlayers(createRecentPlayerDtos);
+                await repositoryApiClient.RecentPlayers.V1.CreateRecentPlayers(createRecentPlayerDtos);
         }
 
         private async Task<Guid?> GetPlayerId(GameType gameType, string guid)
@@ -233,7 +233,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             if (memoryCache.TryGetValue(cacheKey, out Guid playerId))
                 return playerId;
 
-            var playerDtoApiResponse = await repositoryApiClient.Players.GetPlayerByGameType(gameType, guid, PlayerEntityOptions.None);
+            var playerDtoApiResponse = await repositoryApiClient.Players.V1.GetPlayerByGameType(gameType, guid, PlayerEntityOptions.None);
 
             if (playerDtoApiResponse.IsSuccess && playerDtoApiResponse.Result != null)
             {
@@ -255,7 +255,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
             try
             {
                 // Get all protected names from the repository (with a reasonable limit)
-                var protectedNamesResponse = await repositoryApiClient.Players.GetProtectedNames(0, 1000);
+                var protectedNamesResponse = await repositoryApiClient.Players.V1.GetProtectedNames(0, 1000);
 
                 if (!protectedNamesResponse.IsSuccess || protectedNamesResponse.Result == null)
                 {
@@ -281,12 +281,12 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                             if (livePlayerDto.PlayerId != protectedName.PlayerId)
                             {
                                 // Get the player record to include in the admin action
-                                var playerResponse = await repositoryApiClient.Players.GetPlayer(livePlayerDto.PlayerId.Value, PlayerEntityOptions.None);
+                                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(livePlayerDto.PlayerId.Value, PlayerEntityOptions.None);
                                 if (!playerResponse.IsSuccess || playerResponse.Result == null)
                                     continue;
 
                                 // Get the owner player's record for reference
-                                var ownerResponse = await repositoryApiClient.Players.GetPlayer(protectedName.PlayerId, PlayerEntityOptions.None);
+                                var ownerResponse = await repositoryApiClient.Players.V1.GetPlayer(protectedName.PlayerId, PlayerEntityOptions.None);
                                 if (!ownerResponse.IsSuccess || ownerResponse.Result == null)
                                     continue;
 
@@ -300,7 +300,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                                     $"Protected Name Violation - using '{protectedName.Name}' which is registered to {ownerResponse.Result.Username}"
                                 );
 
-                                await repositoryApiClient.AdminActions.CreateAdminAction(adminAction);
+                                await repositoryApiClient.AdminActions.V1.CreateAdminAction(adminAction);
 
                                 if (livePlayerDto.Num != 0)
                                 {

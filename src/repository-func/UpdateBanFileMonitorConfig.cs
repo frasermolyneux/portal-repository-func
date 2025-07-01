@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.RepositoryFunc
 {
@@ -45,8 +45,8 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         public async Task RunUpdateBanFileMonitorConfig([TimerTrigger("0 0 */1 * * *")] TimerInfo? myTimer)
         {
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 };
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, null, 0, 50, null);
-            var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.GetBanFileMonitors(gameTypes, null, null, 0, 50, null);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, null, 0, 50, null);
+            var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitors(gameTypes, null, null, 0, 50, null);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
             {
@@ -92,7 +92,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                                 if (await ftpClient.FileExists($"/{gameServerDto.LiveMod}/ban.txt"))
                                 {
                                     var createBanFileMonitorDto = new CreateBanFileMonitorDto(gameServerDto.GameServerId, $"/{gameServerDto.LiveMod}/ban.txt", gameServerDto.GameType);
-                                    await repositoryApiClient.BanFileMonitors.CreateBanFileMonitor(createBanFileMonitorDto);
+                                    await repositoryApiClient.BanFileMonitors.V1.CreateBanFileMonitor(createBanFileMonitorDto);
                                 }
                             }
                             catch (Exception ex)
@@ -130,7 +130,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                                     if (await ftpClient.DirectoryExists(gameServerDto.LiveMod))
                                     {
                                         var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, $"/{gameServerDto.LiveMod}/ban.txt");
-                                        await repositoryApiClient.BanFileMonitors.UpdateBanFileMonitor(editBanFileMonitorDto);
+                                        await repositoryApiClient.BanFileMonitors.V1.UpdateBanFileMonitor(editBanFileMonitorDto);
                                     }
                                 }
                                 catch (Exception ex)

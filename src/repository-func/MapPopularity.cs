@@ -1,7 +1,7 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.RepositoryFunc;
 
@@ -23,6 +23,6 @@ public class MapPopularity
     {
         _log.LogInformation("Performing Rebuild of Map Popularity");
 
-        await _repositoryApiClient.Maps.RebuildMapPopularity();
+        await _repositoryApiClient.Maps.V1.RebuildMapPopularity();
     }
 }

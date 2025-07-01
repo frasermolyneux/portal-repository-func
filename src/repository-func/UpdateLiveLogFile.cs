@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.RepositoryFunc
 {
@@ -46,7 +46,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
         public async Task RunUpdateLiveLogFile([TimerTrigger("0 0 */1 * * *")] TimerInfo? myTimer)
         {
             GameType[] gameTypes = [GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5];
-            var gameServersApiResponse = await repositoryApiClient.GameServers.GetGameServers(gameTypes, null, null, 0, 50, null);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, null, 0, 50, null);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
             {
@@ -80,7 +80,7 @@ namespace XtremeIdiots.Portal.RepositoryFunc
                         var active = files.Where(f => f.Name.Contains(".log") && !f.Name.Contains("console")).OrderByDescending(f => f.Modified).FirstOrDefault();
                         if (active != null)
                         {
-                            await repositoryApiClient.GameServers.UpdateGameServer(new EditGameServerDto(gameServerDto.GameServerId)
+                            await repositoryApiClient.GameServers.V1.UpdateGameServer(new EditGameServerDto(gameServerDto.GameServerId)
                             {
                                 LiveLogFile = active.FullName
                             });

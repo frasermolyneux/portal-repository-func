@@ -2,7 +2,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
-using XtremeIdiots.Portal.RepositoryApiClient;
+using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
 namespace XtremeIdiots.Portal.RepositoryFunc;
 
@@ -29,7 +29,7 @@ public class DataMaintenance
     public async Task RunPruneChatMessages([TimerTrigger("0 0 * * * *")] TimerInfo? myTimer)
     {
         _log.LogInformation("Pruning Chat Messages");
-        await _repositoryApiClient.DataMaintenance.PruneChatMessages();
+        await _repositoryApiClient.DataMaintenance.V1.PruneChatMessages();
         _log.LogInformation("Prune Chat Messages completed successfully");
     }
 
@@ -43,7 +43,7 @@ public class DataMaintenance
     public async Task RunPruneGameServerEvents([TimerTrigger("0 0 1 * * *")] TimerInfo? myTimer)
     {
         _log.LogInformation("Pruning Game Server Events");
-        await _repositoryApiClient.DataMaintenance.PruneGameServerEvents();
+        await _repositoryApiClient.DataMaintenance.V1.PruneGameServerEvents();
         _log.LogInformation("Prune Game Server Events completed successfully");
     }
 
@@ -57,7 +57,7 @@ public class DataMaintenance
     public async Task RunPruneGameServerStats([TimerTrigger("0 0 2 * * *")] TimerInfo? myTimer)
     {
         _log.LogInformation("Pruning Game Server Stats");
-        await _repositoryApiClient.DataMaintenance.PruneGameServerStats();
+        await _repositoryApiClient.DataMaintenance.V1.PruneGameServerStats();
         _log.LogInformation("Prune Game Server Stats completed successfully");
     }
 
@@ -71,7 +71,7 @@ public class DataMaintenance
     public async Task RunResetSystemAssignedPlayerTags([TimerTrigger("0 0 3 * * *")] TimerInfo? myTimer)
     {
         _log.LogInformation("Resetting System Assigned Player Tags");
-        await _repositoryApiClient.DataMaintenance.ResetSystemAssignedPlayerTags();
+        await _repositoryApiClient.DataMaintenance.V1.ResetSystemAssignedPlayerTags();
         _log.LogInformation("Reset System Assigned Player Tags completed successfully");
     }
 }
