@@ -13,7 +13,7 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Constants;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.BanFileMonitors;
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
-namespace XtremeIdiots.Portal.RepositoryFunc
+namespace XtremeIdiots.Portal.Repository.App.Functions
 {
     public class UpdateBanFileMonitorConfig
     {

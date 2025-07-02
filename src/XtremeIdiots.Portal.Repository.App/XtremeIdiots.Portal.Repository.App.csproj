@@ -5,7 +5,7 @@
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>    
-    <RootNamespace>XtremeIdiots.Portal.RepositoryFunc</RootNamespace>    
+    <RootNamespace>XtremeIdiots.Portal.Repository.App</RootNamespace>    
     <UserSecretsId>b2dae35a-2e88-4a01-9a60-897cc3ef8bf9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>

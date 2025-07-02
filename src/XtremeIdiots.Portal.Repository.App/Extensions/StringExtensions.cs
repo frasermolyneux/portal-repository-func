@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace XtremeIdiots.Portal.RepositoryFunc.Extensions
+namespace XtremeIdiots.Portal.Repository.App.Extensions
 {
     public static class StringExtensions
     {

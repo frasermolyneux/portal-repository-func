@@ -1,6 +1,6 @@
 {
-    "azureFunctions.projectSubpath": "src\\repository-func",
-    "azureFunctions.deploySubpath": "src\\repository-func/bin/Release/net9.0/publish",
+    "azureFunctions.projectSubpath": "src\\XtremeIdiots.Portal.Repository.App",
+    "azureFunctions.deploySubpath": "src\\XtremeIdiots.Portal.Repository.App/bin/Release/net9.0/publish",
     "azureFunctions.projectLanguage": "C#",
     "azureFunctions.projectRuntime": "~4",
     "debug.internalConsoleOptions": "neverOpen",

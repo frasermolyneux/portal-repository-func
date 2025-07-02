@@ -9,7 +9,7 @@ using Microsoft.Extensions.Hosting;
 using MX.GeoLocation.GeoLocationApi.Client;
 
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
-using XtremeIdiots.Portal.RepositoryFunc;
+using XtremeIdiots.Portal.Repository.App;
 using XtremeIdiots.Portal.ServersApiClient;
 
 var host = new HostBuilder()

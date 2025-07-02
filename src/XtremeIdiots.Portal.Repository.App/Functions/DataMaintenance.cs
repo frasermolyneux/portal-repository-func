@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
 
-namespace XtremeIdiots.Portal.RepositoryFunc;
+namespace XtremeIdiots.Portal.Repository.App.Functions;
 
 public class DataMaintenance
 {

@@ -8,7 +8,7 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Maps;
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
 using XtremeIdiots.Portal.ServersApiClient;
 
-namespace XtremeIdiots.Portal.RepositoryFunc
+namespace XtremeIdiots.Portal.Repository.App.Functions
 {
     public class SnapshotGameServerStats
     {

@@ -3,7 +3,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace XtremeIdiots.Portal.RepositoryFunc
+namespace XtremeIdiots.Portal.Repository.App.Functions
 {
     public class HealthCheck
     {

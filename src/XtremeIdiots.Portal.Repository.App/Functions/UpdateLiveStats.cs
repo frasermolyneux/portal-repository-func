@@ -11,10 +11,10 @@ using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.GameServers;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.Players;
 using XtremeIdiots.Portal.RepositoryApi.Abstractions.Models.RecentPlayers;
 using XtremeIdiots.Portal.RepositoryApiClient.V1;
-using XtremeIdiots.Portal.RepositoryFunc.Extensions;
+using XtremeIdiots.Portal.Repository.App.Extensions;
 using XtremeIdiots.Portal.ServersApiClient;
 
-namespace XtremeIdiots.Portal.RepositoryFunc
+namespace XtremeIdiots.Portal.Repository.App.Functions
 {
     public class UpdateLiveStats
     {
