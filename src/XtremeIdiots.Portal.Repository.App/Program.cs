@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 
 using MX.GeoLocation.GeoLocationApi.Client;
 
-using XtremeIdiots.Portal.RepositoryApiClient.V1;
+using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Repository.App;
 using XtremeIdiots.Portal.ServersApiClient;
 
