@@ -4,7 +4,7 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using MX.GeoLocation.GeoLocationApi.Client;
-
+using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
@@ -12,7 +12,6 @@ using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Players;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.RecentPlayers;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Repository.App.Extensions;
-using XtremeIdiots.Portal.ServersApiClient;
 
 namespace XtremeIdiots.Portal.Repository.App.Functions
 {
@@ -96,7 +95,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
         private async Task<List<CreateLivePlayerDto>> UpdateLivePlayersFromRcon(GameServerDto gameServerDto)
         {
-            var rconQueryApiResponse = await serversApiClient.Rcon.GetServerStatus(gameServerDto.GameServerId);
+            var rconQueryApiResponse = await serversApiClient.Rcon.V1.GetServerStatus(gameServerDto.GameServerId);
 
             if (!rconQueryApiResponse.IsSuccess || rconQueryApiResponse.Result == null)
                 throw new NullReferenceException($"Failed to retrieve rcon query result for game server {gameServerDto.GameServerId}");
@@ -147,7 +146,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
         private async Task<List<CreateLivePlayerDto>> UpdateLivePlayersFromQuery(GameServerDto gameServerDto, List<CreateLivePlayerDto> livePlayerDtos)
         {
-            var serverQueryApiResponse = await serversApiClient.Query.GetServerStatus(gameServerDto.GameServerId);
+            var serverQueryApiResponse = await serversApiClient.Query.V1.GetServerStatus(gameServerDto.GameServerId);
 
             if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result == null)
                 throw new NullReferenceException($"Failed to retrieve server query result for game server {gameServerDto.GameServerId}");
@@ -305,7 +304,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                                 if (livePlayerDto.Num != 0)
                                 {
                                     // If the player is in-game, kick them from the server
-                                    var banResponse = await serversApiClient.Rcon.BanPlayer(gameServer.GameServerId, livePlayerDto.Num);
+                                    var banResponse = await serversApiClient.Rcon.V1.BanPlayer(gameServer.GameServerId, livePlayerDto.Num);
                                     if (!banResponse.IsSuccess)
                                     {
                                         logger.LogWarning($"Failed to ban player {playerResponse.Result.Username} from server {gameServer.GameServerId}");

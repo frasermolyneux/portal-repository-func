@@ -1,12 +1,11 @@
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
-
+using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Maps;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
-using XtremeIdiots.Portal.ServersApiClient;
 
 namespace XtremeIdiots.Portal.Repository.App.Functions
 {
@@ -52,7 +51,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
                     if (!string.IsNullOrWhiteSpace(gameServerDto.RconPassword))
                     {
-                        var serverQueryApiResponse = await serversApiClient.Query.GetServerStatus(gameServerDto.GameServerId);
+                        var serverQueryApiResponse = await serversApiClient.Query.V1.GetServerStatus(gameServerDto.GameServerId);
 
                         if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result == null)
                         {
