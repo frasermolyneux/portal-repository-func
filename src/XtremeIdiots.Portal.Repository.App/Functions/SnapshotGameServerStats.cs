@@ -51,27 +51,27 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
                     if (!string.IsNullOrWhiteSpace(gameServerDto.RconPassword))
                     {
-                        var serverQueryApiResponse = await serversApiClient.Query.V1.GetServerStatus(gameServerDto.GameServerId);
+                        var getServerStatusResult = await serversApiClient.Query.V1.GetServerStatus(gameServerDto.GameServerId);
 
-                        if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result == null)
+                        if (!getServerStatusResult.IsSuccess || getServerStatusResult.Result?.Data == null)
                         {
                             logger.LogWarning($"Failed to retrieve server query result for game server {gameServerDto.GameServerId}");
                             continue;
                         }
 
-                        if (!string.IsNullOrWhiteSpace(serverQueryApiResponse.Result.Map))
+                        if (!string.IsNullOrWhiteSpace(getServerStatusResult.Result.Data.Map))
                         {
-                            if (!memoryCache.TryGetValue($"{gameServerDto.GameType}-{serverQueryApiResponse.Result.Map}", out bool mapExists))
+                            if (!memoryCache.TryGetValue($"{gameServerDto.GameType}-{getServerStatusResult.Result.Data.Map}", out bool mapExists))
                             {
-                                var mapDto = await repositoryApiClient.Maps.V1.GetMap(gameServerDto.GameType, serverQueryApiResponse.Result.Map);
+                                var mapDto = await repositoryApiClient.Maps.V1.GetMap(gameServerDto.GameType, getServerStatusResult.Result.Data.Map);
 
                                 if (mapDto.IsNotFound)
-                                    await repositoryApiClient.Maps.V1.CreateMap(new CreateMapDto(gameServerDto.GameType, serverQueryApiResponse.Result.Map));
+                                    await repositoryApiClient.Maps.V1.CreateMap(new CreateMapDto(gameServerDto.GameType, getServerStatusResult.Result.Data.Map));
 
-                                memoryCache.Set($"{gameServerDto.GameType}-{serverQueryApiResponse.Result.Map}", true);
+                                memoryCache.Set($"{gameServerDto.GameType}-{getServerStatusResult.Result.Data.Map}", true);
                             }
 
-                            gameServerStatDtos.Add(new CreateGameServerStatDto(gameServerDto.GameServerId, serverQueryApiResponse.Result.PlayerCount, serverQueryApiResponse.Result.Map));
+                            gameServerStatDtos.Add(new CreateGameServerStatDto(gameServerDto.GameServerId, getServerStatusResult.Result.Data.PlayerCount, getServerStatusResult.Result.Data.Map));
                         }
                     }
                 }

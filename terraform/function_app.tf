@@ -40,17 +40,15 @@ resource "azurerm_linux_function_app" "app" {
     "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
 
     "repository_base_url" = data.azurerm_api_management.core.gateway_url
-    "servers_base_url"    = data.azurerm_api_management.core.gateway_url
 
     "portal_repository_apim_subscription_key_primary"   = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.repository_api_subscription_secret_primary.name)
     "portal_repository_apim_subscription_key_secondary" = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.repository_api_subscription_secret_secondary.name)
     "repository_api_application_audience"               = var.repository_api.application_audience
     "repository_api_path_prefix"                        = var.repository_api.apim_path_prefix
 
-    "portal_servers_apim_subscription_key_primary"   = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.servers_integration_api_subscription_secret_primary.name)
-    "portal_servers_apim_subscription_key_secondary" = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.servers_integration_api_subscription_secret_secondary.name)
-    "servers_api_application_audience"               = var.servers_integration_api.application_audience
-    "servers_api_path_prefix"                        = var.servers_integration_api.apim_path_prefix
+    "ServersIntegrationApi:BaseUrl"             = "${data.azurerm_api_management.core.gateway_url}servers-integration"
+    "ServersIntegrationApi:ApiKey"              = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.servers_integration_api_subscription_secret.name)
+    "ServersIntegrationApi:ApplicationAudience" = var.servers_integration_api.application_audience
 
     "geolocation_base_url"                        = var.geo_location_api.base_url
     "geolocation_apim_subscription_key_primary"   = format("@Microsoft.KeyVault(SecretUri=%s)", var.geo_location_api.keyvault_primary_ref)

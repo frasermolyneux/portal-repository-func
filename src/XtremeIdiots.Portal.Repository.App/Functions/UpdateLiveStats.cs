@@ -95,13 +95,13 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
         private async Task<List<CreateLivePlayerDto>> UpdateLivePlayersFromRcon(GameServerDto gameServerDto)
         {
-            var rconQueryApiResponse = await serversApiClient.Rcon.V1.GetServerStatus(gameServerDto.GameServerId);
+            var getServerStatusResult = await serversApiClient.Rcon.V1.GetServerStatus(gameServerDto.GameServerId);
 
-            if (!rconQueryApiResponse.IsSuccess || rconQueryApiResponse.Result == null)
+            if (!getServerStatusResult.IsSuccess || getServerStatusResult.Result?.Data == null)
                 throw new NullReferenceException($"Failed to retrieve rcon query result for game server {gameServerDto.GameServerId}");
 
             var livePlayerDtos = new List<CreateLivePlayerDto>();
-            foreach (var rconPlayer in rconQueryApiResponse.Result.Players)
+            foreach (var rconPlayer in getServerStatusResult.Result.Data.Players)
             {
                 var livePlayerDto = new CreateLivePlayerDto
                 {
@@ -148,12 +148,12 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         {
             var serverQueryApiResponse = await serversApiClient.Query.V1.GetServerStatus(gameServerDto.GameServerId);
 
-            if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result == null)
+            if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result?.Data == null)
                 throw new NullReferenceException($"Failed to retrieve server query result for game server {gameServerDto.GameServerId}");
 
             foreach (var livePlayerDto in livePlayerDtos)
             {
-                var queryPlayer = serverQueryApiResponse.Result.Players.SingleOrDefault(qp => qp.Name?.NormalizeName() == livePlayerDto.Name?.NormalizeName());
+                var queryPlayer = serverQueryApiResponse.Result.Data.Players.SingleOrDefault(qp => qp.Name?.NormalizeName() == livePlayerDto.Name?.NormalizeName());
 
                 if (queryPlayer != null)
                 {
@@ -163,11 +163,11 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
             var editGameServerDto = new EditGameServerDto(gameServerDto.GameServerId)
             {
-                LiveTitle = serverQueryApiResponse.Result.ServerName,
-                LiveMap = serverQueryApiResponse.Result.Map,
-                LiveMod = serverQueryApiResponse.Result.Mod,
-                LiveMaxPlayers = serverQueryApiResponse.Result.MaxPlayers,
-                LiveCurrentPlayers = serverQueryApiResponse.Result.PlayerCount,
+                LiveTitle = serverQueryApiResponse.Result.Data.ServerName,
+                LiveMap = serverQueryApiResponse.Result.Data.Map,
+                LiveMod = serverQueryApiResponse.Result.Data.Mod,
+                LiveMaxPlayers = serverQueryApiResponse.Result.Data.MaxPlayers,
+                LiveCurrentPlayers = serverQueryApiResponse.Result.Data.PlayerCount,
                 LiveLastUpdated = DateTime.UtcNow
             };
 
