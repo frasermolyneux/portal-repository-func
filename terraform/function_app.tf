@@ -46,9 +46,9 @@ resource "azurerm_linux_function_app" "app" {
     "repository_api_application_audience"               = var.repository_api.application_audience
     "repository_api_path_prefix"                        = var.repository_api.apim_path_prefix
 
-    "ServersIntegrationApi:BaseUrl"             = "${data.azurerm_api_management.core.gateway_url}servers-integration"
-    "ServersIntegrationApi:ApiKey"              = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.servers_integration_api_subscription_secret.name)
-    "ServersIntegrationApi:ApplicationAudience" = var.servers_integration_api.application_audience
+    "ServersIntegrationApi__BaseUrl"             = "${data.azurerm_api_management.core.gateway_url}/servers-integration"
+    "ServersIntegrationApi__ApiKey"              = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.servers_integration_api_subscription_secret.name)
+    "ServersIntegrationApi__ApplicationAudience" = var.servers_integration_api.application_audience
 
     "geolocation_base_url"                        = var.geo_location_api.base_url
     "geolocation_apim_subscription_key_primary"   = format("@Microsoft.KeyVault(SecretUri=%s)", var.geo_location_api.keyvault_primary_ref)
