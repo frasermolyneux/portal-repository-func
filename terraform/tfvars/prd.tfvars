@@ -7,9 +7,8 @@ subscription_id = "32444f38-32f4-409f-889c-8e8aa2b5b4d1"
 api_management_name = "apim-portal-core-prd-uksouth-01-f4d9512b0e37"
 
 geo_location_api = {
-  base_url               = "https://apim-geolocation-prd-uksouth-cw66ekkwbpohc.azure-api.net"
+  base_url               = "https://apim-geolocation-prd-uksouth-cw66ekkwbpohc.azure-api.net/geolocation"
   application_audience   = "api://geolocation-api-prd-01"
-  apim_path_prefix       = "geolocation"
   keyvault_primary_ref   = "https://kv-3b4ntt73fw4ze-uksouth.vault.azure.net/secrets/portal-repo-func-prd-geolocation-api-key-primary/"
   keyvault_secondary_ref = "https://kv-3b4ntt73fw4ze-uksouth.vault.azure.net/secrets/portal-repo-func-prd-geolocation-api-key-secondary/"
 }

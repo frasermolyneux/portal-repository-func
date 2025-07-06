@@ -3,7 +3,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using MX.GeoLocation.GeoLocationApi.Client;
+using MX.GeoLocation.Api.Client.V1;
 using XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions;
@@ -183,17 +183,23 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 if (string.IsNullOrWhiteSpace(livePlayerDto.IpAddress))
                     continue;
 
-                var lookupAddressResponse = await geoLocationClient.GeoLookup.GetGeoLocation(livePlayerDto.IpAddress);
+                var getGeoLocationResult = await geoLocationClient.GeoLookup.V1.GetGeoLocation(livePlayerDto.IpAddress);
 
-                if (lookupAddressResponse.IsSuccess && lookupAddressResponse.Result != null)
+                if (getGeoLocationResult.IsSuccess && getGeoLocationResult.Result?.Data != null)
                 {
-                    livePlayerDto.Lat = lookupAddressResponse.Result.Latitude;
-                    livePlayerDto.Long = lookupAddressResponse.Result.Longitude;
-                    livePlayerDto.CountryCode = lookupAddressResponse.Result.CountryCode;
+                    livePlayerDto.Lat = getGeoLocationResult.Result.Data.Latitude;
+                    livePlayerDto.Long = getGeoLocationResult.Result.Data.Longitude;
+                    livePlayerDto.CountryCode = getGeoLocationResult.Result.Data.CountryCode;
                 }
                 else
                 {
-                    lookupAddressResponse.Errors.ForEach(ex => telemetryClient.TrackException(new ApplicationException(ex)));
+                    if (getGeoLocationResult.Result?.Errors != null)
+                    {
+                        foreach (var error in getGeoLocationResult.Result.Errors)
+                        {
+                            telemetryClient.TrackException(new ApplicationException(error.Message));
+                        }
+                    }
                 }
             }
 

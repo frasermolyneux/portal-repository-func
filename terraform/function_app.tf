@@ -50,11 +50,9 @@ resource "azurerm_linux_function_app" "app" {
     "ServersIntegrationApi__ApiKey"              = format("@Microsoft.KeyVault(VaultName=%s;SecretName=%s)", azurerm_key_vault.kv.name, azurerm_key_vault_secret.servers_integration_api_subscription_secret.name)
     "ServersIntegrationApi__ApplicationAudience" = var.servers_integration_api.application_audience
 
-    "geolocation_base_url"                        = var.geo_location_api.base_url
-    "geolocation_apim_subscription_key_primary"   = format("@Microsoft.KeyVault(SecretUri=%s)", var.geo_location_api.keyvault_primary_ref)
-    "geolocation_apim_subscription_key_secondary" = format("@Microsoft.KeyVault(SecretUri=%s)", var.geo_location_api.keyvault_secondary_ref)
-    "geolocation_api_application_audience"        = var.geo_location_api.application_audience
-    "geolocation_api_path_prefix"                 = var.geo_location_api.apim_path_prefix
+    "GeoLocationApi__BaseUrl"             = var.geo_location_api.base_url
+    "GeoLocationApi__ApiKey"              = format("@Microsoft.KeyVault(SecretUri=%s)", var.geo_location_api.keyvault_primary_ref)
+    "GeoLocationApi__ApplicationAudience" = var.geo_location_api.application_audience
 
     "xtremeidiots_ftp_certificate_thumbprint" = "65173167144EA988088DA20915ABB83DB27645FA"
 

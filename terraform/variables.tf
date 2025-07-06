@@ -18,7 +18,6 @@ variable "geo_location_api" {
   type = object({
     base_url               = string
     application_audience   = string
-    apim_path_prefix       = string
     keyvault_primary_ref   = string
     keyvault_secondary_ref = string
   })

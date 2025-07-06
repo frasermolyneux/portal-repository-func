@@ -7,9 +7,8 @@ subscription_id = "d68448b0-9947-46d7-8771-baa331a3063a"
 api_management_name = "apim-portal-core-dev-uksouth-01-3138575b4c87"
 
 geo_location_api = {
-  base_url               = "https://apim-geolocation-dev-uksouth-nseckbd66cepc.azure-api.net"
+  base_url               = "https://apim-geolocation-dev-uksouth-nseckbd66cepc.azure-api.net/geolocation"
   application_audience   = "api://geolocation-api-dev-01"
-  apim_path_prefix       = "geolocation"
   keyvault_primary_ref   = "https://kv-rjoqmldvgqxtu-uksouth.vault.azure.net/secrets/portal-repo-func-dev-geolocation-api-key-primary/"
   keyvault_secondary_ref = "https://kv-rjoqmldvgqxtu-uksouth.vault.azure.net/secrets/portal-repo-func-dev-geolocation-api-key-secondary/"
 }
