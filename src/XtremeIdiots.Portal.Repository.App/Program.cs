@@ -37,14 +37,14 @@ var host = new HostBuilder()
         });
 
         services.AddServersApiClient()
-            .WithBaseUrl(config["ServersIntegrationApi:BaseUrl"] ?? throw new ArgumentNullException("ServersIntegrationApi:BaseUrl"))
-            .WithApiKeyAuthentication(config["ServersIntegrationApi:ApiKey"] ?? throw new ArgumentNullException("ServersIntegrationApi:ApiKey"))
-            .WithAzureCredentials(config["ServersIntegrationApi:ApplicationAudience"] ?? throw new ArgumentNullException("ServersIntegrationApi:ApplicationAudience"));
+            .WithBaseUrl(nameof(ServersApiClientOptions), config["ServersIntegrationApi:BaseUrl"] ?? throw new ArgumentNullException("ServersIntegrationApi:BaseUrl"))
+            .WithApiKeyAuthentication(nameof(ServersApiClientOptions), config["ServersIntegrationApi:ApiKey"] ?? throw new ArgumentNullException("ServersIntegrationApi:ApiKey"))
+            .WithAzureCredentials(nameof(ServersApiClientOptions), config["ServersIntegrationApi:ApplicationAudience"] ?? throw new ArgumentNullException("ServersIntegrationApi:ApplicationAudience"));
 
         services.AddGeoLocationApiClient()
-            .WithBaseUrl(config["GeoLocationApi:BaseUrl"] ?? throw new ArgumentNullException("GeoLocationApi:BaseUrl"))
-            .WithApiKeyAuthentication(config["GeoLocationApi:ApiKey"] ?? throw new ArgumentNullException("GeoLocationApi:ApiKey"))
-            .WithAzureCredentials(config["GeoLocationApi:ApplicationAudience"] ?? throw new ArgumentNullException("GeoLocationApi:ApplicationAudience"));
+            .WithBaseUrl(nameof(GeoLocationApiClientOptions), config["GeoLocationApi:BaseUrl"] ?? throw new ArgumentNullException("GeoLocationApi:BaseUrl"))
+            .WithApiKeyAuthentication(nameof(GeoLocationApiClientOptions), config["GeoLocationApi:ApiKey"] ?? throw new ArgumentNullException("GeoLocationApi:ApiKey"))
+            .WithAzureCredentials(nameof(GeoLocationApiClientOptions), config["GeoLocationApi:ApplicationAudience"] ?? throw new ArgumentNullException("GeoLocationApi:ApplicationAudience"));
 
         services.AddMemoryCache();
 
