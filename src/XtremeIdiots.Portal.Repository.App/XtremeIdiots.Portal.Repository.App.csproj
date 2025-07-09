@@ -15,15 +15,15 @@
 	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
-	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.6" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.6" />
-	  <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.6" />
-	  <PackageReference Include="MX.GeoLocation.Api.Client.V1" Version="1.1.20250707.4" />  
+	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="9.0.7" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.7" />
+	  <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.7" />
+	  <PackageReference Include="MX.GeoLocation.Api.Client.V1" Version="1.1.20250708.1" />  
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.5" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
     <PackageReference Include="XtremeIdiots.Portal.Repository.Api.Client.V1" Version="2.0.422.1" />
-    <PackageReference Include="XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1" Version="1.1.305.1" />
+    <PackageReference Include="XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1" Version="1.1.306.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
