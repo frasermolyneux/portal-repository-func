@@ -42,7 +42,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
             List<CreateGameServerStatDto> gameServerStatDtos = new List<CreateGameServerStatDto>();
 
-            foreach (var gameServerDto in gameServersApiResponse.Result.Entries)
+            foreach (var gameServerDto in gameServersApiResponse.Result.Data?.Items ?? Enumerable.Empty<GameServerDto>())
             {
                 using (logger.BeginScope(gameServerDto.TelemetryProperties))
                 {

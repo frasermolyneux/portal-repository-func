@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.BanFileMonitors;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.GameServers;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Repository.App.Functions
@@ -60,14 +61,14 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 return;
             }
 
-            foreach (var gameServerDto in gameServersApiResponse.Result.Entries)
+            foreach (var gameServerDto in gameServersApiResponse.Result?.Data?.Items ?? Enumerable.Empty<GameServerDto>())
             {
                 using (logger.BeginScope(gameServerDto.TelemetryProperties))
                 {
                     if (string.IsNullOrWhiteSpace(gameServerDto.LiveMod))
                         continue;
 
-                    var banFileMonitorDto = banFileMonitorsApiResponse.Result.Entries.SingleOrDefault(bfm => bfm.GameServerId == gameServerDto.GameServerId);
+                    var banFileMonitorDto = banFileMonitorsApiResponse.Result?.Data?.Items?.SingleOrDefault(bfm => bfm.GameServerId == gameServerDto.GameServerId);
 
                     if (banFileMonitorDto == null)
                     {

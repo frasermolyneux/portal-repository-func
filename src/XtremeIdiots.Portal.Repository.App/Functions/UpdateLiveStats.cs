@@ -47,13 +47,13 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
             var gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };
             var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null);
 
-            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
+            if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items == null)
             {
                 logger.LogCritical("Failed to retrieve game servers from repository");
                 return;
             }
 
-            foreach (var gameServerDto in gameServersApiResponse.Result.Entries)
+            foreach (var gameServerDto in gameServersApiResponse.Result.Data.Items)
             {
                 using (logger.BeginScope(gameServerDto.TelemetryProperties))
                 {
@@ -240,12 +240,12 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
             var playerDtoApiResponse = await repositoryApiClient.Players.V1.GetPlayerByGameType(gameType, guid, PlayerEntityOptions.None);
 
-            if (playerDtoApiResponse.IsSuccess && playerDtoApiResponse.Result != null)
+            if (playerDtoApiResponse.IsSuccess && playerDtoApiResponse.Result?.Data != null)
             {
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromMinutes(15));
-                memoryCache.Set(cacheKey, playerDtoApiResponse.Result.PlayerId, cacheEntryOptions);
+                memoryCache.Set(cacheKey, playerDtoApiResponse.Result.Data.PlayerId, cacheEntryOptions);
 
-                return playerDtoApiResponse.Result.PlayerId;
+                return playerDtoApiResponse.Result.Data.PlayerId;
             }
 
             return null;
@@ -277,7 +277,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                     var playerName = livePlayerDto.Name.Trim().ToLower();
 
                     // Find any protected name that matches the player's current name
-                    foreach (var protectedName in protectedNamesResponse.Result.Entries)
+                    foreach (var protectedName in protectedNamesResponse.Result?.Data?.Items ?? Enumerable.Empty<ProtectedNameDto>())
                     {
                         if (playerName.Contains(protectedName.Name.ToLower()) ||
                             protectedName.Name.ToLower().Contains(playerName))
@@ -295,14 +295,14 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                                 if (!ownerResponse.IsSuccess || ownerResponse.Result == null)
                                     continue;
 
-                                logger.LogInformation($"Protected name violation: Player {playerResponse.Result.Username} ({livePlayerDto.PlayerId}) " +
-                                                     $"is using protected name '{protectedName.Name}' owned by {ownerResponse.Result.Username} ({protectedName.PlayerId})");
+                                logger.LogInformation($"Protected name violation: Player {playerResponse.Result.Data?.Username} ({livePlayerDto.PlayerId}) " +
+                                                     $"is using protected name '{protectedName.Name}' owned by {ownerResponse.Result.Data?.Username} ({protectedName.PlayerId})");
 
                                 // Create an admin action ban for the violating player
                                 var adminAction = new CreateAdminActionDto(
                                     livePlayerDto.PlayerId.Value,
                                     AdminActionType.Ban,
-                                    $"Protected Name Violation - using '{protectedName.Name}' which is registered to {ownerResponse.Result.Username}"
+                                    $"Protected Name Violation - using '{protectedName.Name}' which is registered to {ownerResponse.Result.Data?.Username}"
                                 );
 
                                 await repositoryApiClient.AdminActions.V1.CreateAdminAction(adminAction);
@@ -313,17 +313,21 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                                     var banResponse = await serversApiClient.Rcon.V1.BanPlayer(gameServer.GameServerId, livePlayerDto.Num);
                                     if (!banResponse.IsSuccess)
                                     {
-                                        logger.LogWarning($"Failed to ban player {playerResponse.Result.Username} from server {gameServer.GameServerId}");
+                                        logger.LogWarning($"Failed to kick player {playerResponse.Result.Data?.Username} from server {gameServer.GameServerId}");
+                                    }
+                                    else
+                                    {
+                                        logger.LogWarning($"Failed to ban player {playerResponse.Result.Data?.Username} from server {gameServer.GameServerId}");
                                     }
                                 }
 
                                 // The player has been banned through the repository
                                 // Future implementation would kick the player from the server as well
                                 telemetryClient.TrackEvent("ProtectedNameViolation", new Dictionary<string, string> {
-                                    { "ViolatingPlayerId", livePlayerDto.PlayerId.ToString() },
-                                    { "ViolatingPlayerName", playerResponse.Result.Username },
+                                    { "ViolatingPlayerId", livePlayerDto.PlayerId?.ToString() ?? "Unknown" },
+                                    { "ViolatingPlayerName", playerResponse.Result?.Data?.Username ?? "Unknown" },
                                     { "OwnerPlayerId", protectedName.PlayerId.ToString() },
-                                    { "OwnerPlayerName", ownerResponse.Result.Username },
+                                    { "OwnerPlayerName", ownerResponse.Result?.Data?.Username ?? "Unknown" },
                                     { "ProtectedName", protectedName.Name },
                                     { "GameServerName", gameServer.Title },
                                     { "GameServerId", gameServer.GameServerId.ToString() }

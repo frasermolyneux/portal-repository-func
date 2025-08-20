@@ -54,7 +54,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 return;
             }
 
-            var validGameServers = gameServersApiResponse.Result.Entries.Where(gs => !string.IsNullOrWhiteSpace(gs.LiveMod) && !string.IsNullOrWhiteSpace(gs.FtpHostname) && !string.IsNullOrWhiteSpace(gs.FtpUsername) && !string.IsNullOrWhiteSpace(gs.FtpPassword)).ToList();
+            var validGameServers = gameServersApiResponse.Result.Data?.Items?.Where(gs => !string.IsNullOrWhiteSpace(gs.LiveMod) && !string.IsNullOrWhiteSpace(gs.FtpHostname) && !string.IsNullOrWhiteSpace(gs.FtpUsername) && !string.IsNullOrWhiteSpace(gs.FtpPassword)).ToList() ?? new List<GameServerDto>();
 
             foreach (var gameServerDto in validGameServers)
             {
@@ -63,7 +63,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                     AsyncFtpClient? ftpClient = null;
                     try
                     {
-                        ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value);
+                        ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort ?? 21);
                         ftpClient.ValidateCertificate += (control, e) =>
                         {
                             if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
