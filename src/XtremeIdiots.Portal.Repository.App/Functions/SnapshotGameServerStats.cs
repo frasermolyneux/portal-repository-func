@@ -61,15 +61,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
                         if (!string.IsNullOrWhiteSpace(getServerStatusResult.Result.Data.Map))
                         {
-                            if (!memoryCache.TryGetValue($"{gameServerDto.GameType}-{getServerStatusResult.Result.Data.Map}", out bool mapExists))
-                            {
-                                var mapDto = await repositoryApiClient.Maps.V1.GetMap(gameServerDto.GameType, getServerStatusResult.Result.Data.Map);
-
-                                if (mapDto.IsNotFound)
-                                    await repositoryApiClient.Maps.V1.CreateMap(new CreateMapDto(gameServerDto.GameType, getServerStatusResult.Result.Data.Map));
-
-                                memoryCache.Set($"{gameServerDto.GameType}-{getServerStatusResult.Result.Data.Map}", true);
-                            }
+                            await CreateMapIfNotExists(gameServerDto, getServerStatusResult.Result.Data.Map);
 
                             gameServerStatDtos.Add(new CreateGameServerStatDto(gameServerDto.GameServerId, getServerStatusResult.Result.Data.PlayerCount, getServerStatusResult.Result.Data.Map));
                         }
@@ -79,6 +71,32 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
             if (gameServerStatDtos.Any())
                 await repositoryApiClient.GameServersStats.V1.CreateGameServerStats(gameServerStatDtos);
+        }
+
+        private async Task CreateMapIfNotExists(GameServerDto gameServerDto, string mapName)
+        {
+            if (!memoryCache.TryGetValue($"{gameServerDto.GameType}-{mapName}", out bool mapExists))
+            {
+                var getMapApiResult = await repositoryApiClient.Maps.V1.GetMap(gameServerDto.GameType, mapName);
+
+                if (getMapApiResult.IsNotFound)
+                {
+                    var createMapApiResult = await repositoryApiClient.Maps.V1.CreateMap(new CreateMapDto(gameServerDto.GameType, mapName));
+                    if (createMapApiResult.IsSuccess)
+                    {
+                        memoryCache.Set($"{gameServerDto.GameType}-{mapName}", true);
+                    }
+                    else if (createMapApiResult.IsConflict)
+                    {
+                        logger.LogWarning($"Map {mapName} already exists for game type {gameServerDto.GameType}. Caching the map existence.");
+                        memoryCache.Set($"{gameServerDto.GameType}-{mapName}", true);
+                    }
+                    else
+                    {
+                        logger.LogError($"Failed to create map {mapName} for game type {gameServerDto.GameType}");
+                    }
+                }
+            }
         }
     }
 }
