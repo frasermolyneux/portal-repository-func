@@ -1,189 +1,45 @@
 name: "Copilot Coding Agent Task"
-description: "Use this form to request work for GitHub Copilot Coding Agent (feature, fix, refactor, docs, or tests)."
+description: "A minimal form to request work for GitHub Copilot Coding Agent."
 title: "[Copilot] <short, action-oriented title>"
 labels:
   - copilot-coding-agent
-  - enhancement
 assignees: []
 
 body:
   - type: markdown
     attributes:
       value: |
-        Thanks for proposing a task for GitHub Copilot Coding Agent.
-        Provide just enough context and crisp, verifiable acceptance criteria so the agent can implement confidently.
-
-        When the issue is fully specified, comment the following to kick off the agent:
-        `#github-pull-request_copilot-coding-agent`
-
-  - type: dropdown
-    id: work_type
-    attributes:
-      label: Work type
-      options:
-        - Feature
-        - Bug fix
-        - Refactor
-        - Documentation
-        - Tests
-        - DevEx / Tooling
-      description: Select the primary type of work.
-    validations:
-      required: true
+        Provide a short summary and clear acceptance criteria. When the issue is ready, assign it to Copilot.
 
   - type: textarea
     id: summary
     attributes:
       label: Summary
-      description: One or two sentences that describe the goal and value. Start with an imperative verb (e.g., "Add", "Fix", "Update").
-      placeholder: "Add Map Popularity export endpoint to support dashboard charting"
-    validations:
-      required: true
-
-  - type: textarea
-    id: feature_request
-    attributes:
-      label: Feature request details
-      description: Problem, proposal, and user stories. Include non-functional requirements (performance, reliability, security) if applicable.
-      value: |
-        Problem
-        - As a <role>, I need <capability> so that <outcome>.
-
-        Proposal
-        - High-level approach and key changes.
-
-        User stories
-        - As a <role>, I can <action> so that <benefit>.
-        - As a <role>, I can <action> so that <benefit>.
-
-        Non-functional requirements (if any)
-        - Performance: ...
-        - Security: ...
-        - Reliability: ...
-        - Observability: ...
-      render: markdown
-    validations:
-      required: true
-
-  - type: textarea
-    id: scope
-    attributes:
-      label: Scope
-      description: Be explicit about what is in and out of scope.
-      value: |
-        In scope
-        - ...
-
-        Out of scope
-        - ...
-      render: markdown
-    validations:
-      required: false
-
-  - type: textarea
-    id: requirements
-    attributes:
-      label: Requirements checklist
-      description: Bullet-list of concrete requirements the solution must satisfy.
-      value: |
-        - [ ] Requirement 1
-        - [ ] Requirement 2
-        - [ ] Requirement 3
-      render: markdown
+      description: What should be built or fixed and why (1–3 sentences).
+      placeholder: "Add endpoint to export Map Popularity data for dashboards"
     validations:
       required: true
 
   - type: textarea
     id: acceptance_criteria
     attributes:
-      label: Acceptance criteria (Definition of Done)
-      description: Concrete, verifiable outcomes that prove this is complete. Edit as needed.
+      label: Acceptance criteria
+      description: Checklist of outcomes that prove this is done.
       value: |
-        Functional
-        - [ ] The feature behaves as described in Summary/Feature request
-        - [ ] Edge cases handled (empty/null, large inputs, timeouts, auth)
-
-        Quality gates
-        - [ ] Project builds locally without errors (dotnet) passes
-        - [ ] Unit tests pass via dotnet test and new tests cover the change
-        - [ ] No new analyzer warnings introduced
-        - [ ] Function app runs locally without startup errors (if applicable)
-
-        Infrastructure (only when terraform/ changes)
-        - [ ] terraform fmt -check and terraform validate pass in terraform/
-        - [ ] Variables and outputs updated with documentation as needed
-
-        Security & compliance
-        - [ ] No secrets committed; use Key Vault/Configuration where appropriate
-        - [ ] Input validation and error handling added where relevant
-
-        Documentation
-        - [ ] README or in-repo docs updated
-        - [ ] Release notes / PR description explains What/Why/How and risks
+        - [ ] Behavior matches the Summary
+        - [ ] Basic edge cases handled
+        - [ ] Tests added/updated as needed
       render: markdown
     validations:
       required: true
 
   - type: textarea
-    id: approach
+    id: notes
     attributes:
-      label: Proposed approach (optional)
-      description: Outline a maintainable approach, key modules to touch, and trade-offs.
-      placeholder: "Update Functions/MapPopularity.cs to add new HTTP-triggered function, add tests in repository-func.tests/MapPopularityTests.cs, wire-up DI in Program.cs"
-    validations:
-      required: false
-
-  - type: textarea
-    id: impacted_areas
-    attributes:
-      label: Impacted code/areas
-      description: Link files, directories, or components and note any external dependencies.
+      label: Notes / links (optional)
+      description: Relevant files, designs, or references.
       placeholder: |
-        - src/XtremeIdiots.Portal.Repository.App/Functions/MapPopularity.cs
-        - src/XtremeIdiots.Portal.Repository.App/Program.cs
-        - src/repository-func.tests/MapPopularityTests.cs
+        - src/.../SomeFile.cs
+        - Related doc or issue link
     validations:
       required: false
-
-  - type: textarea
-    id: test_plan
-    attributes:
-      label: Test plan
-      description: How this will be verified. Include unit/integration tests, manual steps, and any data seeding needed.
-      value: |
-        Automated
-        - [ ] Unit tests in repository-func.tests cover happy path and at least one edge case
-        - [ ] Add tests for error handling and boundary conditions as relevant
-
-        Manual (smoke)
-        - [ ] Start the function runtime locally and verify the new behavior
-        - [ ] Validate logs and metrics (App Insights) when applicable
-      render: markdown
-    validations:
-      required: true
-
-  - type: input
-    id: priority
-    attributes:
-      label: Priority
-      description: P0 (urgent), P1 (high), P2 (normal), P3 (low)
-      placeholder: P1
-    validations:
-      required: true
-
-  - type: input
-    id: estimate
-    attributes:
-      label: Estimate (optional)
-      description: Rough effort estimate (e.g., 2-4h, 1-2d)
-      placeholder: 1-2d
-    validations:
-      required: false
-
-  - type: checkboxes
-    id: ready_to_start
-    attributes:
-      label: Ready to start
-      options:
-        - label: I will trigger the Copilot Coding Agent by commenting `#github-pull-request_copilot-coding-agent` when this issue is ready
-          required: false
