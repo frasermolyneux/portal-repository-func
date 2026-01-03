@@ -1,5 +1,5 @@
 environment = "dev"
-location    = "uksouth"
+location    = "swedencentral"
 instance    = "01"
 
 subscription_id = "d68448b0-9947-46d7-8771-baa331a3063a"
@@ -31,7 +31,7 @@ portal_environments_state = {
   tenant_id            = "e56a6947-bb9a-4a6e-846a-1f118d1c3a14"
 }
 
-api_management_name = "apim-portal-core-dev-uksouth-01-3138575b4c87"
+api_management_name = "apim-portal-core-dev-swedencentral-01-2db7de738f7a"
 
 geo_location_api = {
   base_url               = "https://apim-geolocation-dev-uksouth-nseckbd66cepc.azure-api.net/geolocation"
