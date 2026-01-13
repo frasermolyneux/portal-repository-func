@@ -43,8 +43,8 @@ portal_core_state = {
 geo_location_api = {
   base_url               = "https://apim-geolocation-dev-uksouth-nseckbd66cepc.azure-api.net/geolocation"
   application_audience   = "api://geolocation-api-dev-01"
-  keyvault_primary_ref   = "https://kv-rjoqmldvgqxtu-uksouth.vault.azure.net/secrets/portal-repo-func-dev-geolocation-api-key-primary/"
-  keyvault_secondary_ref = "https://kv-rjoqmldvgqxtu-uksouth.vault.azure.net/secrets/portal-repo-func-dev-geolocation-api-key-secondary/"
+  keyvault_primary_ref   = "https://kv-3qlj4oggs4gvu-uksouth.vault.azure.net/secrets/portal-repository-func-dev-geolocation-api-api-key-primary/"
+  keyvault_secondary_ref = "https://kv-3qlj4oggs4gvu-uksouth.vault.azure.net/secrets/portal-repository-func-dev-geolocation-api-api-key-secondary/"
 }
 
 tags = {
