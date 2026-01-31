@@ -44,7 +44,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         [Function(nameof(RunUpdateLiveStats))]
         public async Task RunUpdateLiveStats([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
         {
-            var gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };
+            GameType[] gameTypes = [GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency];
             var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null).ConfigureAwait(false);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items == null)
@@ -60,7 +60,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                     if (string.IsNullOrWhiteSpace(gameServerDto.Hostname) || gameServerDto.QueryPort == 0)
                         continue;
 
-                    var livePlayerDtos = new List<CreateLivePlayerDto>();
+                    List<CreateLivePlayerDto> livePlayerDtos = [];
 
                     try
                     {
@@ -100,7 +100,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
             if (!getServerStatusResult.IsSuccess || getServerStatusResult.Result?.Data == null)
                 throw new NullReferenceException($"Failed to retrieve rcon query result for game server {gameServerDto.GameServerId}");
 
-            var livePlayerDtos = new List<CreateLivePlayerDto>();
+            List<CreateLivePlayerDto> livePlayerDtos = [];
             foreach (var rconPlayer in getServerStatusResult.Result.Data.Players)
             {
                 var livePlayerDto = new CreateLivePlayerDto
@@ -208,7 +208,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
         private async Task UpdateRecentPlayersWithLivePlayers(List<CreateLivePlayerDto> livePlayerDtos)
         {
-            var createRecentPlayerDtos = new List<CreateRecentPlayerDto>();
+            List<CreateRecentPlayerDto> createRecentPlayerDtos = [];
 
             foreach (var livePlayer in livePlayerDtos)
             {
