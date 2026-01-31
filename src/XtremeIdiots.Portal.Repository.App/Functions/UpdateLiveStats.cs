@@ -323,14 +323,15 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
                                 // The player has been banned through the repository
                                 // Future implementation would kick the player from the server as well
-                                telemetryClient.TrackEvent("ProtectedNameViolation", new Dictionary<string, string> {
-                                    { "ViolatingPlayerId", livePlayerDto.PlayerId?.ToString() ?? "Unknown" },
-                                    { "ViolatingPlayerName", playerResponse.Result?.Data?.Username ?? "Unknown" },
-                                    { "OwnerPlayerId", protectedName.PlayerId.ToString() },
-                                    { "OwnerPlayerName", ownerResponse.Result?.Data?.Username ?? "Unknown" },
-                                    { "ProtectedName", protectedName.Name },
-                                    { "GameServerName", gameServer.Title },
-                                    { "GameServerId", gameServer.GameServerId.ToString() }
+                                telemetryClient.TrackEvent("ProtectedNameViolation", new Dictionary<string, string>
+                                {
+                                    ["ViolatingPlayerId"] = livePlayerDto.PlayerId?.ToString() ?? "Unknown",
+                                    ["ViolatingPlayerName"] = playerResponse.Result?.Data?.Username ?? "Unknown",
+                                    ["OwnerPlayerId"] = protectedName.PlayerId.ToString(),
+                                    ["OwnerPlayerName"] = ownerResponse.Result?.Data?.Username ?? "Unknown",
+                                    ["ProtectedName"] = protectedName.Name,
+                                    ["GameServerName"] = gameServer.Title,
+                                    ["GameServerId"] = gameServer.GameServerId.ToString()
                                 });
 
                                 break; // Move to the next player once we've banned this one

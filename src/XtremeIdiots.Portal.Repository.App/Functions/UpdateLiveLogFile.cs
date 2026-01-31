@@ -54,7 +54,12 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 return;
             }
 
-            var validGameServers = gameServersApiResponse.Result.Data?.Items?.Where(gs => !string.IsNullOrWhiteSpace(gs.LiveMod) && !string.IsNullOrWhiteSpace(gs.FtpHostname) && !string.IsNullOrWhiteSpace(gs.FtpUsername) && !string.IsNullOrWhiteSpace(gs.FtpPassword)).ToList() ?? new List<GameServerDto>();
+            var validGameServers = gameServersApiResponse.Result.Data?.Items?
+                .Where(gs => !string.IsNullOrWhiteSpace(gs.LiveMod) && 
+                             !string.IsNullOrWhiteSpace(gs.FtpHostname) && 
+                             !string.IsNullOrWhiteSpace(gs.FtpUsername) && 
+                             !string.IsNullOrWhiteSpace(gs.FtpPassword))
+                .ToList() ?? [];
 
             foreach (var gameServerDto in validGameServers)
             {
