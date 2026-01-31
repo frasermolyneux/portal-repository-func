@@ -38,7 +38,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         [Function(nameof(RunUpdateLiveLogFileManual))]
         public async Task<HttpResponseData> RunUpdateLiveLogFileManual([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestData req)
         {
-            await RunUpdateLiveLogFile(null);
+            await RunUpdateLiveLogFile(null).ConfigureAwait(false);
             return req.CreateResponse(HttpStatusCode.OK);
         }
 
@@ -46,7 +46,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         public async Task RunUpdateLiveLogFile([TimerTrigger("0 0 */1 * * *")] TimerInfo? myTimer)
         {
             GameType[] gameTypes = [GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5];
-            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, null, 0, 50, null);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, null, 0, 50, null).ConfigureAwait(false);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
             {
@@ -60,10 +60,9 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
             {
                 using (logger.BeginScope(gameServerDto.TelemetryProperties))
                 {
-                    AsyncFtpClient? ftpClient = null;
                     try
                     {
-                        ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort ?? 21);
+                        await using var ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort ?? 21);
                         ftpClient.ValidateCertificate += (control, e) =>
                         {
                             if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
@@ -72,10 +71,10 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                             }
                         };
 
-                        await ftpClient.AutoConnect();
-                        await ftpClient.SetWorkingDirectory(gameServerDto.LiveMod);
+                        await ftpClient.AutoConnect().ConfigureAwait(false);
+                        await ftpClient.SetWorkingDirectory(gameServerDto.LiveMod).ConfigureAwait(false);
 
-                        var files = await ftpClient.GetListing();
+                        var files = await ftpClient.GetListing().ConfigureAwait(false);
 
                         var active = files.Where(f => f.Name.Contains(".log") && !f.Name.Contains("console")).OrderByDescending(f => f.Modified).FirstOrDefault();
                         if (active != null)
@@ -83,17 +82,13 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                             await repositoryApiClient.GameServers.V1.UpdateGameServer(new EditGameServerDto(gameServerDto.GameServerId)
                             {
                                 LiveLogFile = active.FullName
-                            });
+                            }).ConfigureAwait(false);
                         }
                     }
                     catch (Exception ex)
                     {
                         telemetryClient.TrackException(ex);
                         continue;
-                    }
-                    finally
-                    {
-                        ftpClient?.Dispose();
                     }
                 }
             }

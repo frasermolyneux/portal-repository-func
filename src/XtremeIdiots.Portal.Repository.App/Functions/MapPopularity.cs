@@ -23,6 +23,6 @@ public class MapPopularity
     {
         _log.LogInformation("Performing Rebuild of Map Popularity");
 
-        await _repositoryApiClient.Maps.V1.RebuildMapPopularity();
+        await _repositoryApiClient.Maps.V1.RebuildMapPopularity().ConfigureAwait(false);
     }
 }

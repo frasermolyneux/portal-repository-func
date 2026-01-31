@@ -18,7 +18,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "health")] HttpRequestData req,
             FunctionContext context)
         {
-            var healthStatus = await healthCheck.CheckHealthAsync();
+            var healthStatus = await healthCheck.CheckHealthAsync().ConfigureAwait(false);
             return new OkObjectResult(Enum.GetName(typeof(HealthStatus), healthStatus.Status));
         }
     }
