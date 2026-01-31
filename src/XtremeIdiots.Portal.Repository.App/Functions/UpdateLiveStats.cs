@@ -317,7 +317,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                                     }
                                     else
                                     {
-                                        logger.LogWarning($"Failed to ban player {playerResponse.Result.Data?.Username} from server {gameServer.GameServerId}");
+                                        logger.LogInformation($"Successfully kicked player {playerResponse.Result.Data?.Username} from server {gameServer.GameServerId}");
                                     }
                                 }
 

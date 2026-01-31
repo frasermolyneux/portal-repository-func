@@ -1,3 +1,5 @@
+using System.Net;
+
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -20,9 +22,10 @@ public class DataMaintenance
     }
 
     [Function(nameof(RunPruneChatMessagesHttp))]
-    public async Task RunPruneChatMessagesHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    public async Task<HttpResponseData> RunPruneChatMessagesHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
     {
         await RunPruneChatMessages(null).ConfigureAwait(false);
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 
     [Function(nameof(RunPruneChatMessages))]
@@ -34,9 +37,10 @@ public class DataMaintenance
     }
 
     [Function(nameof(RunPruneGameServerEventsHttp))]
-    public async Task RunPruneGameServerEventsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    public async Task<HttpResponseData> RunPruneGameServerEventsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
     {
         await RunPruneGameServerEvents(null).ConfigureAwait(false);
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 
     [Function(nameof(RunPruneGameServerEvents))]
@@ -48,9 +52,10 @@ public class DataMaintenance
     }
 
     [Function(nameof(RunPruneGameServerStatsHttp))]
-    public async Task RunPruneGameServerStatsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    public async Task<HttpResponseData> RunPruneGameServerStatsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
     {
         await RunPruneGameServerStats(null).ConfigureAwait(false);
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 
     [Function(nameof(RunPruneGameServerStats))]
@@ -62,9 +67,10 @@ public class DataMaintenance
     }
 
     [Function(nameof(RunResetSystemAssignedPlayerTagsHttp))]
-    public async Task RunResetSystemAssignedPlayerTagsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    public async Task<HttpResponseData> RunResetSystemAssignedPlayerTagsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
     {
         await RunResetSystemAssignedPlayerTags(null).ConfigureAwait(false);
+        return req.CreateResponse(HttpStatusCode.OK);
     }
 
     [Function(nameof(RunResetSystemAssignedPlayerTags))]
