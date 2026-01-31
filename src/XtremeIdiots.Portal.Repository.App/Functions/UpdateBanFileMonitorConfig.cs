@@ -61,7 +61,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 return;
             }
 
-            foreach (var gameServerDto in gameServersApiResponse.Result?.Data?.Items ?? Enumerable.Empty<GameServerDto>())
+            foreach (var gameServerDto in gameServersApiResponse.Result?.Data?.Items ?? [])
             {
                 using (logger.BeginScope(gameServerDto.TelemetryProperties))
                 {

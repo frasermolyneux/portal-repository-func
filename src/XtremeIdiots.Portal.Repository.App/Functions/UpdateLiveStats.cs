@@ -277,7 +277,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                     var playerName = livePlayerDto.Name.Trim().ToLower();
 
                     // Find any protected name that matches the player's current name
-                    foreach (var protectedName in protectedNamesResponse.Result?.Data?.Items ?? Enumerable.Empty<ProtectedNameDto>())
+                    foreach (var protectedName in protectedNamesResponse.Result?.Data?.Items ?? [])
                     {
                         if (playerName.Contains(protectedName.Name.ToLower()) ||
                             protectedName.Name.ToLower().Contains(playerName))
