@@ -31,7 +31,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         [Function(nameof(RunSnapshotGameServerStats))]
         public async Task RunSnapshotGameServerStats([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
         {
-            GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };
+            GameType[] gameTypes = [GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency];
             var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null).ConfigureAwait(false);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
@@ -40,9 +40,9 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 return;
             }
 
-            List<CreateGameServerStatDto> gameServerStatDtos = new List<CreateGameServerStatDto>();
+            List<CreateGameServerStatDto> gameServerStatDtos = [];
 
-            foreach (var gameServerDto in gameServersApiResponse.Result.Data?.Items ?? Enumerable.Empty<GameServerDto>())
+            foreach (var gameServerDto in gameServersApiResponse.Result.Data?.Items ?? [])
             {
                 using (logger.BeginScope(gameServerDto.TelemetryProperties))
                 {

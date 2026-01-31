@@ -54,7 +54,12 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 return;
             }
 
-            var validGameServers = gameServersApiResponse.Result.Data?.Items?.Where(gs => !string.IsNullOrWhiteSpace(gs.LiveMod) && !string.IsNullOrWhiteSpace(gs.FtpHostname) && !string.IsNullOrWhiteSpace(gs.FtpUsername) && !string.IsNullOrWhiteSpace(gs.FtpPassword)).ToList() ?? new List<GameServerDto>();
+            var validGameServers = gameServersApiResponse.Result.Data?.Items?
+                .Where(gs => !string.IsNullOrWhiteSpace(gs.LiveMod) && 
+                             !string.IsNullOrWhiteSpace(gs.FtpHostname) && 
+                             !string.IsNullOrWhiteSpace(gs.FtpUsername) && 
+                             !string.IsNullOrWhiteSpace(gs.FtpPassword))
+                .ToList() ?? [];
 
             foreach (var gameServerDto in validGameServers)
             {
@@ -76,7 +81,10 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
                         var files = await ftpClient.GetListing().ConfigureAwait(false);
 
-                        var active = files.Where(f => f.Name.Contains(".log") && !f.Name.Contains("console")).OrderByDescending(f => f.Modified).FirstOrDefault();
+                        var active = files
+                            .Where(f => f.Name.Contains(".log", StringComparison.OrdinalIgnoreCase) && 
+                                       !f.Name.Contains("console", StringComparison.OrdinalIgnoreCase))
+                            .MaxBy(f => f.Modified);
                         if (active != null)
                         {
                             await repositoryApiClient.GameServers.V1.UpdateGameServer(new EditGameServerDto(gameServerDto.GameServerId)

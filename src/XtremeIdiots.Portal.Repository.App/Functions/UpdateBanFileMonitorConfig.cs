@@ -45,7 +45,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         [Function(nameof(RunUpdateBanFileMonitorConfig))]
         public async Task RunUpdateBanFileMonitorConfig([TimerTrigger("0 0 */1 * * *")] TimerInfo? myTimer)
         {
-            GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 };
+            GameType[] gameTypes = [GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5];
             var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, null, 0, 50, null).ConfigureAwait(false);
             var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitors(gameTypes, null, null, 0, 50, null).ConfigureAwait(false);
 
@@ -61,7 +61,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 return;
             }
 
-            foreach (var gameServerDto in gameServersApiResponse.Result?.Data?.Items ?? Enumerable.Empty<GameServerDto>())
+            foreach (var gameServerDto in gameServersApiResponse.Result?.Data?.Items ?? [])
             {
                 using (logger.BeginScope(gameServerDto.TelemetryProperties))
                 {

@@ -4,7 +4,8 @@
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>    
+    <Nullable>enable</Nullable>
+    <LangVersion>13.0</LangVersion>
     <RootNamespace>XtremeIdiots.Portal.Repository.App</RootNamespace>    
     <UserSecretsId>b2dae35a-2e88-4a01-9a60-897cc3ef8bf9</UserSecretsId>
   </PropertyGroup>
