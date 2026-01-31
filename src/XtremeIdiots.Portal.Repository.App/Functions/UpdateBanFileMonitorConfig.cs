@@ -38,7 +38,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         [Function(nameof(RunUpdateBanFileMonitorConfigManual))]
         public async Task<HttpResponseData> RunUpdateBanFileMonitorConfigManual([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestData req)
         {
-            await RunUpdateBanFileMonitorConfig(null);
+            await RunUpdateBanFileMonitorConfig(null).ConfigureAwait(false);
             return req.CreateResponse(HttpStatusCode.OK);
         }
 
@@ -46,8 +46,8 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         public async Task RunUpdateBanFileMonitorConfig([TimerTrigger("0 0 */1 * * *")] TimerInfo? myTimer)
         {
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5 };
-            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, null, 0, 50, null);
-            var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitors(gameTypes, null, null, 0, 50, null);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, null, 0, 50, null).ConfigureAwait(false);
+            var banFileMonitorsApiResponse = await repositoryApiClient.BanFileMonitors.V1.GetBanFileMonitors(gameTypes, null, null, 0, 50, null).ConfigureAwait(false);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
             {
@@ -76,10 +76,9 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                         {
                             logger.LogInformation($"BanFileMonitor for '{gameServerDto.Title}' does not exist - creating");
 
-                            AsyncFtpClient? ftpClient = null;
                             try
                             {
-                                ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: new FtpLogAdapter(logger));
+                                await using var ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: new FtpLogAdapter(logger));
                                 ftpClient.ValidateCertificate += (control, e) =>
                                 {
                                     if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
@@ -88,21 +87,17 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                                     }
                                 };
 
-                                await ftpClient.AutoConnect();
+                                await ftpClient.AutoConnect().ConfigureAwait(false);
 
-                                if (await ftpClient.FileExists($"/{gameServerDto.LiveMod}/ban.txt"))
+                                if (await ftpClient.FileExists($"/{gameServerDto.LiveMod}/ban.txt").ConfigureAwait(false))
                                 {
                                     var createBanFileMonitorDto = new CreateBanFileMonitorDto(gameServerDto.GameServerId, $"/{gameServerDto.LiveMod}/ban.txt", gameServerDto.GameType);
-                                    await repositoryApiClient.BanFileMonitors.V1.CreateBanFileMonitor(createBanFileMonitorDto);
+                                    await repositoryApiClient.BanFileMonitors.V1.CreateBanFileMonitor(createBanFileMonitorDto).ConfigureAwait(false);
                                 }
                             }
                             catch (Exception ex)
                             {
                                 telemetryClient.TrackException(ex, gameServerDto.TelemetryProperties);
-                            }
-                            finally
-                            {
-                                ftpClient?.Dispose();
                             }
                         }
                     }
@@ -114,10 +109,9 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                             {
                                 logger.LogInformation($"BanFileMonitor for '{gameServerDto.Title}' does not have current mod in path - updating");
 
-                                AsyncFtpClient? ftpClient = null;
                                 try
                                 {
-                                    ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: new FtpLogAdapter(logger));
+                                    await using var ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: new FtpLogAdapter(logger));
                                     ftpClient.ValidateCertificate += (control, e) =>
                                     {
                                         if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
@@ -126,21 +120,17 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                                         }
                                     };
 
-                                    await ftpClient.AutoConnect();
+                                    await ftpClient.AutoConnect().ConfigureAwait(false);
 
-                                    if (await ftpClient.DirectoryExists(gameServerDto.LiveMod))
+                                    if (await ftpClient.DirectoryExists(gameServerDto.LiveMod).ConfigureAwait(false))
                                     {
                                         var editBanFileMonitorDto = new EditBanFileMonitorDto(banFileMonitorDto.BanFileMonitorId, $"/{gameServerDto.LiveMod}/ban.txt");
-                                        await repositoryApiClient.BanFileMonitors.V1.UpdateBanFileMonitor(editBanFileMonitorDto);
+                                        await repositoryApiClient.BanFileMonitors.V1.UpdateBanFileMonitor(editBanFileMonitorDto).ConfigureAwait(false);
                                     }
                                 }
                                 catch (Exception ex)
                                 {
                                     telemetryClient.TrackException(ex, banFileMonitorDto.TelemetryProperties);
-                                }
-                                finally
-                                {
-                                    ftpClient?.Dispose();
                                 }
                             }
                         }

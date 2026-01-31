@@ -32,7 +32,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         public async Task RunSnapshotGameServerStats([TimerTrigger("0 */1 * * * *")] TimerInfo myTimer)
         {
             GameType[] gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };
-            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null).ConfigureAwait(false);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result == null)
             {
@@ -51,7 +51,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
                     if (!string.IsNullOrWhiteSpace(gameServerDto.RconPassword))
                     {
-                        var getServerStatusResult = await serversApiClient.Query.V1.GetServerStatus(gameServerDto.GameServerId);
+                        var getServerStatusResult = await serversApiClient.Query.V1.GetServerStatus(gameServerDto.GameServerId).ConfigureAwait(false);
 
                         if (!getServerStatusResult.IsSuccess || getServerStatusResult.Result?.Data == null)
                         {
@@ -61,7 +61,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
                         if (!string.IsNullOrWhiteSpace(getServerStatusResult.Result.Data.Map))
                         {
-                            await CreateMapIfNotExists(gameServerDto, getServerStatusResult.Result.Data.Map);
+                            await CreateMapIfNotExists(gameServerDto, getServerStatusResult.Result.Data.Map).ConfigureAwait(false);
 
                             gameServerStatDtos.Add(new CreateGameServerStatDto(gameServerDto.GameServerId, getServerStatusResult.Result.Data.PlayerCount, getServerStatusResult.Result.Data.Map));
                         }
@@ -70,18 +70,18 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
             }
 
             if (gameServerStatDtos.Any())
-                await repositoryApiClient.GameServersStats.V1.CreateGameServerStats(gameServerStatDtos);
+                await repositoryApiClient.GameServersStats.V1.CreateGameServerStats(gameServerStatDtos).ConfigureAwait(false);
         }
 
         private async Task CreateMapIfNotExists(GameServerDto gameServerDto, string mapName)
         {
             if (!memoryCache.TryGetValue($"{gameServerDto.GameType}-{mapName}", out bool mapExists))
             {
-                var getMapApiResult = await repositoryApiClient.Maps.V1.GetMap(gameServerDto.GameType, mapName);
+                var getMapApiResult = await repositoryApiClient.Maps.V1.GetMap(gameServerDto.GameType, mapName).ConfigureAwait(false);
 
                 if (getMapApiResult.IsNotFound)
                 {
-                    var createMapApiResult = await repositoryApiClient.Maps.V1.CreateMap(new CreateMapDto(gameServerDto.GameType, mapName));
+                    var createMapApiResult = await repositoryApiClient.Maps.V1.CreateMap(new CreateMapDto(gameServerDto.GameType, mapName)).ConfigureAwait(false);
                     if (createMapApiResult.IsSuccess)
                     {
                         memoryCache.Set($"{gameServerDto.GameType}-{mapName}", true);

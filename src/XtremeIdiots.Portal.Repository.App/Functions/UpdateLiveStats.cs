@@ -45,7 +45,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         public async Task RunUpdateLiveStats([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
         {
             var gameTypes = new GameType[] { GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency };
-            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null);
+            var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null).ConfigureAwait(false);
 
             if (!gameServersApiResponse.IsSuccess || gameServersApiResponse.Result?.Data?.Items == null)
             {
@@ -66,18 +66,18 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                     {
                         if (!string.IsNullOrWhiteSpace(gameServerDto.RconPassword))
                         {
-                            livePlayerDtos = await UpdateLivePlayersFromRcon(gameServerDto);
-                            livePlayerDtos = await UpdateLivePlayersFromQuery(gameServerDto, livePlayerDtos);
-                            livePlayerDtos = await EnrichPlayersWithGeoLocation(livePlayerDtos);
+                            livePlayerDtos = await UpdateLivePlayersFromRcon(gameServerDto).ConfigureAwait(false);
+                            livePlayerDtos = await UpdateLivePlayersFromQuery(gameServerDto, livePlayerDtos).ConfigureAwait(false);
+                            livePlayerDtos = await EnrichPlayersWithGeoLocation(livePlayerDtos).ConfigureAwait(false);
 
                             // Check protected names after players have been loaded
-                            await CheckProtectedNameViolations(gameServerDto, livePlayerDtos);
+                            await CheckProtectedNameViolations(gameServerDto, livePlayerDtos).ConfigureAwait(false);
 
-                            await UpdateRecentPlayersWithLivePlayers(livePlayerDtos);
+                            await UpdateRecentPlayersWithLivePlayers(livePlayerDtos).ConfigureAwait(false);
                         }
                         else
                         {
-                            livePlayerDtos = await UpdateLivePlayersFromQuery(gameServerDto, livePlayerDtos);
+                            livePlayerDtos = await UpdateLivePlayersFromQuery(gameServerDto, livePlayerDtos).ConfigureAwait(false);
                         }
                     }
                     catch (Exception ex)
@@ -88,14 +88,14 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
                     telemetryClient.TrackMetric("PlayerCount", livePlayerDtos.Count, gameServerDto.TelemetryProperties);
 
-                    await repositoryApiClient.LivePlayers.V1.SetLivePlayersForGameServer(gameServerDto.GameServerId, livePlayerDtos);
+                    await repositoryApiClient.LivePlayers.V1.SetLivePlayersForGameServer(gameServerDto.GameServerId, livePlayerDtos).ConfigureAwait(false);
                 }
             }
         }
 
         private async Task<List<CreateLivePlayerDto>> UpdateLivePlayersFromRcon(GameServerDto gameServerDto)
         {
-            var getServerStatusResult = await serversApiClient.Rcon.V1.GetServerStatus(gameServerDto.GameServerId);
+            var getServerStatusResult = await serversApiClient.Rcon.V1.GetServerStatus(gameServerDto.GameServerId).ConfigureAwait(false);
 
             if (!getServerStatusResult.IsSuccess || getServerStatusResult.Result?.Data == null)
                 throw new NullReferenceException($"Failed to retrieve rcon query result for game server {gameServerDto.GameServerId}");
@@ -116,7 +116,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
                 if (!string.IsNullOrWhiteSpace(rconPlayer.Guid))
                 {
-                    var playerId = await GetPlayerId(gameServerDto.GameType, rconPlayer.Guid);
+                    var playerId = await GetPlayerId(gameServerDto.GameType, rconPlayer.Guid).ConfigureAwait(false);
                     if (playerId.HasValue)
                     {
                         livePlayerDto.PlayerId = playerId;
@@ -128,9 +128,9 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                             IpAddress = rconPlayer.IpAddress
                         };
 
-                        await repositoryApiClient.Players.V1.CreatePlayer(player);
+                        await repositoryApiClient.Players.V1.CreatePlayer(player).ConfigureAwait(false);
 
-                        playerId = await GetPlayerId(gameServerDto.GameType, rconPlayer.Guid);
+                        playerId = await GetPlayerId(gameServerDto.GameType, rconPlayer.Guid).ConfigureAwait(false);
                         if (playerId.HasValue)
                         {
                             livePlayerDto.PlayerId = playerId;
@@ -146,7 +146,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
 
         private async Task<List<CreateLivePlayerDto>> UpdateLivePlayersFromQuery(GameServerDto gameServerDto, List<CreateLivePlayerDto> livePlayerDtos)
         {
-            var serverQueryApiResponse = await serversApiClient.Query.V1.GetServerStatus(gameServerDto.GameServerId);
+            var serverQueryApiResponse = await serversApiClient.Query.V1.GetServerStatus(gameServerDto.GameServerId).ConfigureAwait(false);
 
             if (!serverQueryApiResponse.IsSuccess || serverQueryApiResponse.Result?.Data == null)
                 throw new NullReferenceException($"Failed to retrieve server query result for game server {gameServerDto.GameServerId}");
@@ -171,7 +171,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 LiveLastUpdated = DateTime.UtcNow
             };
 
-            await repositoryApiClient.GameServers.V1.UpdateGameServer(editGameServerDto);
+            await repositoryApiClient.GameServers.V1.UpdateGameServer(editGameServerDto).ConfigureAwait(false);
 
             return livePlayerDtos;
         }
@@ -183,7 +183,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 if (string.IsNullOrWhiteSpace(livePlayerDto.IpAddress))
                     continue;
 
-                var getGeoLocationResult = await geoLocationClient.GeoLookup.V1.GetGeoLocation(livePlayerDto.IpAddress);
+                var getGeoLocationResult = await geoLocationClient.GeoLookup.V1.GetGeoLocation(livePlayerDto.IpAddress).ConfigureAwait(false);
 
                 if (getGeoLocationResult.IsSuccess && getGeoLocationResult.Result?.Data != null)
                 {
@@ -228,7 +228,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
             }
 
             if (createRecentPlayerDtos.Any())
-                await repositoryApiClient.RecentPlayers.V1.CreateRecentPlayers(createRecentPlayerDtos);
+                await repositoryApiClient.RecentPlayers.V1.CreateRecentPlayers(createRecentPlayerDtos).ConfigureAwait(false);
         }
 
         private async Task<Guid?> GetPlayerId(GameType gameType, string guid)
@@ -238,7 +238,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
             if (memoryCache.TryGetValue(cacheKey, out Guid playerId))
                 return playerId;
 
-            var playerDtoApiResponse = await repositoryApiClient.Players.V1.GetPlayerByGameType(gameType, guid, PlayerEntityOptions.None);
+            var playerDtoApiResponse = await repositoryApiClient.Players.V1.GetPlayerByGameType(gameType, guid, PlayerEntityOptions.None).ConfigureAwait(false);
 
             if (playerDtoApiResponse.IsSuccess && playerDtoApiResponse.Result?.Data != null)
             {
@@ -260,7 +260,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
             try
             {
                 // Get all protected names from the repository (with a reasonable limit)
-                var protectedNamesResponse = await repositoryApiClient.Players.V1.GetProtectedNames(0, 1000);
+                var protectedNamesResponse = await repositoryApiClient.Players.V1.GetProtectedNames(0, 1000).ConfigureAwait(false);
 
                 if (!protectedNamesResponse.IsSuccess || protectedNamesResponse.Result == null)
                 {
@@ -286,12 +286,12 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                             if (livePlayerDto.PlayerId != protectedName.PlayerId)
                             {
                                 // Get the player record to include in the admin action
-                                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(livePlayerDto.PlayerId.Value, PlayerEntityOptions.None);
+                                var playerResponse = await repositoryApiClient.Players.V1.GetPlayer(livePlayerDto.PlayerId.Value, PlayerEntityOptions.None).ConfigureAwait(false);
                                 if (!playerResponse.IsSuccess || playerResponse.Result == null)
                                     continue;
 
                                 // Get the owner player's record for reference
-                                var ownerResponse = await repositoryApiClient.Players.V1.GetPlayer(protectedName.PlayerId, PlayerEntityOptions.None);
+                                var ownerResponse = await repositoryApiClient.Players.V1.GetPlayer(protectedName.PlayerId, PlayerEntityOptions.None).ConfigureAwait(false);
                                 if (!ownerResponse.IsSuccess || ownerResponse.Result == null)
                                     continue;
 
@@ -305,12 +305,12 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                                     $"Protected Name Violation - using '{protectedName.Name}' which is registered to {ownerResponse.Result.Data?.Username}"
                                 );
 
-                                await repositoryApiClient.AdminActions.V1.CreateAdminAction(adminAction);
+                                await repositoryApiClient.AdminActions.V1.CreateAdminAction(adminAction).ConfigureAwait(false);
 
                                 if (livePlayerDto.Num != 0)
                                 {
                                     // If the player is in-game, kick them from the server
-                                    var banResponse = await serversApiClient.Rcon.V1.BanPlayer(gameServer.GameServerId, livePlayerDto.Num);
+                                    var banResponse = await serversApiClient.Rcon.V1.BanPlayer(gameServer.GameServerId, livePlayerDto.Num).ConfigureAwait(false);
                                     if (!banResponse.IsSuccess)
                                     {
                                         logger.LogWarning($"Failed to kick player {playerResponse.Result.Data?.Username} from server {gameServer.GameServerId}");
