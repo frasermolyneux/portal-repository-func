@@ -82,8 +82,8 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                         var files = await ftpClient.GetListing().ConfigureAwait(false);
 
                         var active = files
-                            .Where(f => f.Name.Contains(".log", StringComparison.Ordinal) && 
-                                       !f.Name.Contains("console", StringComparison.Ordinal))
+                            .Where(f => f.Name.Contains(".log", StringComparison.OrdinalIgnoreCase) && 
+                                       !f.Name.Contains("console", StringComparison.OrdinalIgnoreCase))
                             .MaxBy(f => f.Modified);
                         if (active != null)
                         {
