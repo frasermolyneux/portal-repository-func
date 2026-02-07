@@ -1,6 +1,5 @@
 # XtremeIdiots Portal - Repository Func
 
-[![DevOps Secure Scanning](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/devops-secure-scanning.yml/badge.svg)](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/devops-secure-scanning.yml)
 [![Code Quality](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/codequality.yml/badge.svg)](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/codequality.yml)
 [![Build and Test](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/build-and-test.yml)
 [![PR Verify](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/pr-verify.yml/badge.svg)](https://github.com/frasermolyneux/portal-repository-func/actions/workflows/pr-verify.yml)
