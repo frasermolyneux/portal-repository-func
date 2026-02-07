@@ -8,12 +8,14 @@ on:
     branches:
       - main
 
-permissions:
-  contents: read
-  id-token: write
+
+permissions: read-all
 
 jobs:
   build-and-test:
+    permissions:
+      contents: read
+      id-token: write
     if: github.event_name != 'push' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
@@ -24,6 +26,9 @@ jobs:
           src-folder: "src"
 
   terraform-plan-and-apply-dev:
+    permissions:
+      contents: read
+      id-token: write
     if: github.event_name == 'push'
     environment: Development
     needs: build-and-test
@@ -41,6 +46,9 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
   function-app-deploy-dev:
+    permissions:
+      contents: read
+      id-token: write
     if: github.event_name == 'push'
     environment: Development
     needs: [build-and-test, terraform-plan-and-apply-dev]
@@ -58,6 +66,9 @@ jobs:
           AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
   terraform-plan-and-apply-prd:
+    permissions:
+      contents: read
+      id-token: write
     environment: Production
     needs:
       - build-and-test
@@ -97,6 +108,9 @@ jobs:
       resource_group_name: ${{ steps.terraform-output.outputs.resource_group_name }}
 
   function-app-deploy-prd:
+    permissions:
+      contents: read
+      id-token: write
     environment: Production
     needs:
       - build-and-test
