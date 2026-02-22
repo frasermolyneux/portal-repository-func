@@ -1,28 +1,53 @@
-# Please see the documentation for all configuration options:
-# https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
-
 version: 2
 updates:
   - package-ecosystem: "nuget"
     assignees: ["frasermolyneux"]
     directory: "/src"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
+      time: "01:45"
+      timezone: "Etc/UTC"
+    groups:
+      nuget:
+        patterns:
+          - "*"
 
   - package-ecosystem: "terraform"
     assignees: ["frasermolyneux"]
     directory: "/terraform"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
+      time: "01:45"
+      timezone: "Etc/UTC"
+    groups:
+      terraform:
+        patterns:
+          - "*"
 
   - package-ecosystem: "github-actions"
     assignees: ["frasermolyneux"]
     directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "sunday"
+      time: "01:45"
+      timezone: "Etc/UTC"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
 
   - package-ecosystem: "devcontainers"
     assignees: ["frasermolyneux"]
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "sunday"
+      time: "01:45"
+      timezone: "Etc/UTC"
+    groups:
+      devcontainers:
+        patterns:
+          - "*"
