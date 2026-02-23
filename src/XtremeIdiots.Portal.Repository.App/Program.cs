@@ -1,8 +1,11 @@
 using System.Reflection;
 
+using Azure.Identity;
+
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -16,6 +19,33 @@ var host = new HostBuilder()
     .ConfigureAppConfiguration(builder =>
     {
         builder.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
+
+        var builtConfig = builder.Build();
+        var appConfigEndpoint = builtConfig["AzureAppConfiguration:Endpoint"];
+
+        if (!string.IsNullOrWhiteSpace(appConfigEndpoint))
+        {
+            var managedIdentityClientId = builtConfig["AzureAppConfiguration:ManagedIdentityClientId"];
+            var environmentLabel = builtConfig["AzureAppConfiguration:Environment"];
+
+            var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions
+            {
+                ManagedIdentityClientId = managedIdentityClientId,
+            });
+
+            builder.AddAzureAppConfiguration(options =>
+            {
+                options.Connect(new Uri(appConfigEndpoint), credential)
+                    .Select("RepositoryApi:*", environmentLabel)
+                    .Select("ServersIntegrationApi:*", environmentLabel)
+                    .Select("GeoLocationApi:*", environmentLabel)
+                    .Select("XtremeIdiots:*", environmentLabel)
+                    .Select("XtremeIdiots.Portal.Repository.App:*", environmentLabel)
+                    .TrimKeyPrefix("XtremeIdiots.Portal.Repository.App:");
+
+                options.ConfigureKeyVault(kv => kv.SetCredential(credential));
+            });
+        }
     })
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices((context, services) =>

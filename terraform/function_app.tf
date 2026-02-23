@@ -47,18 +47,6 @@ resource "azurerm_linux_function_app" "function_app" {
 
     "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
 
-    "RepositoryApi__BaseUrl"             = local.repository_api.api_management.endpoint
-    "RepositoryApi__ApplicationAudience" = local.repository_api.application.primary_identifier_uri
-
-    "ServersIntegrationApi__BaseUrl"             = local.servers_integration_api.api_management.endpoint
-    "ServersIntegrationApi__ApplicationAudience" = local.servers_integration_api.application.primary_identifier_uri
-
-    "GeoLocationApi__BaseUrl"             = var.geo_location_api.base_url
-    "GeoLocationApi__ApiKey"              = format("@Microsoft.KeyVault(SecretUri=%s)", var.geo_location_api.keyvault_primary_ref)
-    "GeoLocationApi__ApplicationAudience" = var.geo_location_api.application_audience
-
-    "xtremeidiots_ftp_certificate_thumbprint" = "65173167144EA988088DA20915ABB83DB27645FA"
-
     // https://learn.microsoft.com/en-us/azure/azure-monitor/profiler/profiler-azure-functions#app-settings-for-enabling-profiler
     "APPINSIGHTS_PROFILERFEATURE_VERSION"  = "1.0.0"
     "DiagnosticServices_EXTENSION_VERSION" = "~3"

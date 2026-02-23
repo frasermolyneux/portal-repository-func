@@ -40,13 +40,6 @@ portal_core_state = {
   tenant_id            = "e56a6947-bb9a-4a6e-846a-1f118d1c3a14"
 }
 
-geo_location_api = {
-  base_url               = "https://apim-geo-location-prd-swedencentral-6f10eaac01a0.azure-api.net/geolocation"
-  application_audience   = "api://e56a6947-bb9a-4a6e-846a-1f118d1c3a14/geolocation-api-prd"
-  keyvault_primary_ref   = "https://kv-11624f0ecabd-swe.vault.azure.net/secrets/portal-repository-func-prd-apim-subscription-key/"
-  keyvault_secondary_ref = "https://kv-11624f0ecabd-swe.vault.azure.net/secrets/portal-repository-func-prd-apim-subscription-key-secondary/"
-}
-
 tags = {
   Environment = "prd",
   Workload    = "portal-repository-func",

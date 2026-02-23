@@ -62,15 +62,6 @@ variable "portal_core_state" {
   })
 }
 
-variable "geo_location_api" {
-  type = object({
-    base_url               = string
-    application_audience   = string
-    keyvault_primary_ref   = string
-    keyvault_secondary_ref = string
-  })
-}
-
 variable "tags" {
   default = {}
 }
