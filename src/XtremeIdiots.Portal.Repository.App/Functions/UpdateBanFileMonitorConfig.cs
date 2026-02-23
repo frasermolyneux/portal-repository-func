@@ -81,7 +81,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                                 await using var ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: new FtpLogAdapter(logger));
                                 ftpClient.ValidateCertificate += (control, e) =>
                                 {
-                                    if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                                    if (e.Certificate != null && e.Certificate.GetCertHashString().Equals(configuration["XtremeIdiots:FtpCertificateThumbprint"], StringComparison.OrdinalIgnoreCase))
                                     { // Account for self-signed FTP certificate for self-hosted servers
                                         e.Accept = true;
                                     }
@@ -114,7 +114,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                                     await using var ftpClient = new AsyncFtpClient(gameServerDto.FtpHostname, gameServerDto.FtpUsername, gameServerDto.FtpPassword, gameServerDto.FtpPort.Value, logger: new FtpLogAdapter(logger));
                                     ftpClient.ValidateCertificate += (control, e) =>
                                     {
-                                        if (e.Certificate.GetCertHashString().Equals(configuration["xtremeidiots_ftp_certificate_thumbprint"]))
+                                        if (e.Certificate != null && e.Certificate.GetCertHashString().Equals(configuration["XtremeIdiots:FtpCertificateThumbprint"], StringComparison.OrdinalIgnoreCase))
                                         { // Account for self-signed FTP certificate for self-hosted servers
                                             e.Accept = true;
                                         }
