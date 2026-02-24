@@ -18,6 +18,7 @@ using XtremeIdiots.Portal.Repository.App;
 var host = new HostBuilder()
     .ConfigureAppConfiguration(builder =>
     {
+        builder.AddEnvironmentVariables();
         builder.AddUserSecrets(Assembly.GetExecutingAssembly(), true);
 
         var builtConfig = builder.Build();
