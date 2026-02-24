@@ -42,13 +42,26 @@ var host = new HostBuilder()
                     .Select("GeoLocationApi:*", environmentLabel)
                     .Select("XtremeIdiots:*", environmentLabel)
                     .Select("XtremeIdiots.Portal.Repository.App:*", environmentLabel)
-                    .TrimKeyPrefix("XtremeIdiots.Portal.Repository.App:");
+                    .TrimKeyPrefix("XtremeIdiots.Portal.Repository.App:")
+                    .ConfigureRefresh(refresh =>
+                    {
+                        refresh.Register("Sentinel", environmentLabel, refreshAll: true)
+                               .SetRefreshInterval(TimeSpan.FromMinutes(5));
+                    });
 
-                options.ConfigureKeyVault(kv => kv.SetCredential(credential));
+                options.ConfigureKeyVault(kv =>
+                {
+                    kv.SetCredential(credential);
+                    kv.SetSecretRefreshInterval(TimeSpan.FromHours(1));
+                });
             });
         }
     })
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWorkerDefaults(builder =>
+    {
+        builder.Services.AddAzureAppConfiguration();
+        builder.UseAzureAppConfiguration();
+    })
     .ConfigureServices((context, services) =>
     {
         var configuration = context.Configuration;
