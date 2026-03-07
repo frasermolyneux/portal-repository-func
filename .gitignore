@@ -397,8 +397,12 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
-terraform/.terraform.lock.hcl
-terraform/.terraform/*
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfplan
+.terraform.lock.hcl
 
 # Azurite emulator files
 __azurite*
