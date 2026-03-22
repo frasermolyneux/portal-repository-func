@@ -10,24 +10,24 @@
     <UserSecretsId>b2dae35a-2e88-4a01-9a60-897cc3ef8bf9</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-	  <PackageReference Include="FluentFTP" Version="53.0.2" />
+	  <PackageReference Include="FluentFTP" Version="54.0.2" />
 	  <PackageReference Include="FluentFTP.Logging" Version="1.0.0" />
-	  <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
+	  <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="3.0.0" />
 	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.9" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.50.0" />
 	  <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Timer" Version="4.3.1" />
-	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.3" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="8.1.2" />
-	  <PackageReference Include="Microsoft.Azure.AppConfiguration.Functions.Worker" Version="8.1.2" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.3" />
-	  <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.3" />
-	  <PackageReference Include="MX.GeoLocation.Api.Client.V1" Version="1.1.20260212.3" />  
+	  <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="10.0.5" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="8.5.0" />
+	  <PackageReference Include="Microsoft.Azure.AppConfiguration.Functions.Worker" Version="8.5.0" />
+	  <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.5" />
+	  <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="10.0.5" />
+	  <PackageReference Include="MX.GeoLocation.Api.Client.V1" Version="1.2.18" />  
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.51.0" />
-    <PackageReference Include="MX.Api.Client" Version="2.2.40" />
-    <PackageReference Include="XtremeIdiots.Portal.Repository.Api.Client.V1" Version="2.1.126" />
-    <PackageReference Include="XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1" Version="2.1.92" />
+    <PackageReference Include="MX.Api.Client" Version="2.3.31" />
+    <PackageReference Include="XtremeIdiots.Portal.Repository.Api.Client.V1" Version="2.1.150" />
+    <PackageReference Include="XtremeIdiots.Portal.Integrations.Servers.Api.Client.V1" Version="2.1.121" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
