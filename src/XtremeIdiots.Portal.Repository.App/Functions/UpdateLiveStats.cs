@@ -183,7 +183,7 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
                 if (string.IsNullOrWhiteSpace(livePlayerDto.IpAddress))
                     continue;
 
-                var getGeoLocationResult = await geoLocationClient.GeoLookup.V1.GetGeoLocation(livePlayerDto.IpAddress).ConfigureAwait(false);
+                var getGeoLocationResult = await geoLocationClient.GeoLookup.V1_1.GetCityGeoLocation(livePlayerDto.IpAddress).ConfigureAwait(false);
 
                 if (getGeoLocationResult.IsSuccess && getGeoLocationResult.Result?.Data != null)
                 {
