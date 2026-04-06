@@ -41,8 +41,9 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
         }
 
 
-        [Function(nameof(RunUpdateLiveStats))]
-        public async Task RunUpdateLiveStats([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
+        // DISABLED: Replaced by portal-server-agent + portal-server-events server-status processor
+        // [Function(nameof(RunUpdateLiveStats))]
+        public async Task RunUpdateLiveStats(TimerInfo myTimer)
         {
             GameType[] gameTypes = [GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5, GameType.Insurgency];
             var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, GameServerFilter.LiveTrackingEnabled, 0, 50, null).ConfigureAwait(false);

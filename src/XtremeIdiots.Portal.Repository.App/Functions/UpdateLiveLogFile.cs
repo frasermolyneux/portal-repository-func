@@ -35,15 +35,17 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
             this.telemetryClient = telemetryClient;
         }
 
-        [Function(nameof(RunUpdateLiveLogFileManual))]
-        public async Task<HttpResponseData> RunUpdateLiveLogFileManual([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestData req)
-        {
-            await RunUpdateLiveLogFile(null).ConfigureAwait(false);
-            return req.CreateResponse(HttpStatusCode.OK);
-        }
+        // DISABLED: Replaced by portal-server-agent FTP log tailing
+        // [Function(nameof(RunUpdateLiveLogFileManual))]
+        // public async Task<HttpResponseData> RunUpdateLiveLogFileManual([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestData req)
+        // {
+        //     await RunUpdateLiveLogFile(null).ConfigureAwait(false);
+        //     return req.CreateResponse(HttpStatusCode.OK);
+        // }
 
-        [Function(nameof(RunUpdateLiveLogFile))]
-        public async Task RunUpdateLiveLogFile([TimerTrigger("0 0 */1 * * *")] TimerInfo? myTimer)
+        // DISABLED: Replaced by portal-server-agent FTP log tailing
+        // [Function(nameof(RunUpdateLiveLogFile))]
+        public async Task RunUpdateLiveLogFile(TimerInfo? myTimer)
         {
             GameType[] gameTypes = [GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5];
             var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, null, 0, 50, null).ConfigureAwait(false);

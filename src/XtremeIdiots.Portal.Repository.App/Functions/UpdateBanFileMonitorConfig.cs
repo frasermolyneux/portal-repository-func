@@ -35,15 +35,17 @@ namespace XtremeIdiots.Portal.Repository.App.Functions
             this.telemetryClient = telemetryClient;
         }
 
-        [Function(nameof(RunUpdateBanFileMonitorConfigManual))]
-        public async Task<HttpResponseData> RunUpdateBanFileMonitorConfigManual([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestData req)
-        {
-            await RunUpdateBanFileMonitorConfig(null).ConfigureAwait(false);
-            return req.CreateResponse(HttpStatusCode.OK);
-        }
+        // DISABLED: Replaced by portal-server-agent ban file watcher
+        // [Function(nameof(RunUpdateBanFileMonitorConfigManual))]
+        // public async Task<HttpResponseData> RunUpdateBanFileMonitorConfigManual([HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequestData req)
+        // {
+        //     await RunUpdateBanFileMonitorConfig(null).ConfigureAwait(false);
+        //     return req.CreateResponse(HttpStatusCode.OK);
+        // }
 
-        [Function(nameof(RunUpdateBanFileMonitorConfig))]
-        public async Task RunUpdateBanFileMonitorConfig([TimerTrigger("0 0 */1 * * *")] TimerInfo? myTimer)
+        // DISABLED: Replaced by portal-server-agent ban file watcher
+        // [Function(nameof(RunUpdateBanFileMonitorConfig))]
+        public async Task RunUpdateBanFileMonitorConfig(TimerInfo? myTimer)
         {
             GameType[] gameTypes = [GameType.CallOfDuty2, GameType.CallOfDuty4, GameType.CallOfDuty5];
             var gameServersApiResponse = await repositoryApiClient.GameServers.V1.GetGameServers(gameTypes, null, null, 0, 50, null).ConfigureAwait(false);
