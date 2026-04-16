@@ -22,7 +22,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.51.0" />
     <PackageReference Include="MX.Api.Client" Version="2.3.31" />
-    <PackageReference Include="MX.Observability.ApplicationInsights" Version="1.0.2" />
+    <PackageReference Include="MX.Observability.ApplicationInsights" Version="1.0.3" />
     <PackageReference Include="XtremeIdiots.Portal.Repository.Api.Client.V1" Version="2.1.178" />
   </ItemGroup>
   <ItemGroup>
@@ -38,3 +38,4 @@
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
   </ItemGroup>
 </Project>
+
