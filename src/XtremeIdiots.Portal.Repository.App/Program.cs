@@ -10,7 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using MX.Api.Client.Extensions;
-using MX.Observability.ApplicationInsights.Extensions;
+using MX.Observability.ApplicationInsights.WorkerService;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Repository.App;
 
