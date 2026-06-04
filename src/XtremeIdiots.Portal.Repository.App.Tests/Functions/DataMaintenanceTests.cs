@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 using Moq;
 
@@ -12,10 +13,12 @@ public class DataMaintenanceTests
 {
     private readonly Mock<ILogger<DataMaintenance>> _loggerMock = new();
     private readonly FakeRepositoryApiClient _fakeRepositoryApiClient = new();
+    private readonly IConfiguration _configuration = new ConfigurationBuilder().Build();
 
     private DataMaintenance CreateSut() => new(
         _loggerMock.Object,
-        _fakeRepositoryApiClient
+        _fakeRepositoryApiClient,
+        _configuration
     );
 
     [Fact]
@@ -51,10 +54,18 @@ public class DataMaintenanceTests
     }
 
     [Fact]
+    public async Task RunReconcileConnectedPlayerTags_ShouldCompleteSuccessfully()
+    {
+        var sut = CreateSut();
+
+        await sut.RunReconcileConnectedPlayerTags(null);
+    }
+
+    [Fact]
     public async Task RunPruneChatMessages_ShouldCallPruneChatMessages()
     {
         var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
-        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object);
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
 
         await sut.RunPruneChatMessages(null);
 
@@ -66,7 +77,7 @@ public class DataMaintenanceTests
     public async Task RunPruneGameServerEvents_ShouldCallPruneGameServerEvents()
     {
         var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
-        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object);
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
 
         await sut.RunPruneGameServerEvents(null);
 
@@ -78,7 +89,7 @@ public class DataMaintenanceTests
     public async Task RunPruneGameServerStats_ShouldCallPruneGameServerStats()
     {
         var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
-        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object);
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
 
         await sut.RunPruneGameServerStats(null);
 
@@ -90,11 +101,23 @@ public class DataMaintenanceTests
     public async Task RunResetSystemAssignedPlayerTags_ShouldCallResetSystemAssignedPlayerTags()
     {
         var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
-        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object);
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
 
         await sut.RunResetSystemAssignedPlayerTags(null);
 
         Mock.Get(repositoryApiClientMock.Object.DataMaintenance.V1)
             .Verify(x => x.ResetSystemAssignedPlayerTags(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RunReconcileConnectedPlayerTags_WithMissingConfig_CompletesWithoutCallingRepositoryClient()
+    {
+        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
+
+        await sut.RunReconcileConnectedPlayerTags(null);
+
+        Mock.Get(repositoryApiClientMock.Object.DataMaintenance.V1)
+            .VerifyNoOtherCalls();
     }
 }
