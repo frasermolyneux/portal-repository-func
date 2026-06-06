@@ -46,6 +46,14 @@ public class DataMaintenanceTests
     }
 
     [Fact]
+    public async Task RunPrunePlayerIpAddresses_ShouldCompleteSuccessfully()
+    {
+        var sut = CreateSut();
+
+        await sut.RunPrunePlayerIpAddresses(null);
+    }
+
+    [Fact]
     public async Task RunResetSystemAssignedPlayerTags_ShouldCompleteSuccessfully()
     {
         var sut = CreateSut();
@@ -95,6 +103,18 @@ public class DataMaintenanceTests
 
         Mock.Get(repositoryApiClientMock.Object.DataMaintenance.V1)
             .Verify(x => x.PruneGameServerStats(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RunPrunePlayerIpAddresses_ShouldCallPrunePlayerIpAddresses()
+    {
+        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
+
+        await sut.RunPrunePlayerIpAddresses(null);
+
+        Mock.Get(repositoryApiClientMock.Object.DataMaintenance.V1)
+            .Verify(x => x.PrunePlayerIpAddresses(It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

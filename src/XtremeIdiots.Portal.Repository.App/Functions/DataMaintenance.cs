@@ -74,6 +74,21 @@ public class DataMaintenance
         _log.LogInformation("Prune Game Server Stats completed successfully");
     }
 
+    [Function(nameof(RunPrunePlayerIpAddressesHttp))]
+    public async Task<HttpResponseData> RunPrunePlayerIpAddressesHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    {
+        await RunPrunePlayerIpAddresses(null).ConfigureAwait(false);
+        return req.CreateResponse(HttpStatusCode.OK);
+    }
+
+    [Function(nameof(RunPrunePlayerIpAddresses))]
+    public async Task RunPrunePlayerIpAddresses([TimerTrigger("0 30 2 * * *")] TimerInfo? myTimer)
+    {
+        _log.LogInformation("Pruning Player IP Addresses");
+        await _repositoryApiClient.DataMaintenance.V1.PrunePlayerIpAddresses().ConfigureAwait(false);
+        _log.LogInformation("Prune Player IP Addresses completed successfully");
+    }
+
     [Function(nameof(RunResetSystemAssignedPlayerTagsHttp))]
     public async Task<HttpResponseData> RunResetSystemAssignedPlayerTagsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
     {
