@@ -35,6 +35,7 @@ jobs:
         with:
           repository: frasermolyneux/.github-copilot
           path: .github-copilot
+          ref: refs/tags/v0.1.0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v5
@@ -42,3 +43,15 @@ jobs:
             dotnet-version: |
               9.0.x
               10.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '20'
+
+      - name: Build MCP server
+        shell: bash
+        working-directory: .github-copilot/mcp-server
+        run: |
+          npm ci
+          npm run build

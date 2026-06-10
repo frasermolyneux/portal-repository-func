@@ -20,3 +20,6 @@ Please read the [contributing](CONTRIBUTING.md) guidance; this is a learning and
 
 ## Security
 Please read the [security](SECURITY.md) guidance; I am always open to security feedback through email or opening an issue.
+
+## Local dev: MCP wire-up
+Shared org conventions are served by the `frasermolyneux-copilot` MCP server (catalog in [`frasermolyneux/.github-copilot`](https://github.com/frasermolyneux/.github-copilot)). For client config (`.vscode/mcp.json`, Copilot CLI, Claude Desktop) and the tool surface, see [`mcp-server/README.md`](https://github.com/frasermolyneux/.github-copilot/blob/main/mcp-server/README.md). Cloud agents pick it up automatically via [`.github/copilot/mcp_config.json`](.github/copilot/mcp_config.json) plus the `Build MCP server` step in [`.github/workflows/copilot-setup-steps.yml`](.github/workflows/copilot-setup-steps.yml).
