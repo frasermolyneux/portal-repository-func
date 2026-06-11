@@ -19,6 +19,14 @@ The `copilot-setup-steps.yml` workflow checks out `frasermolyneux/.github-copilo
 
 ---
 
+## Org conventions via MCP (when available)
+
+If a `frasermolyneux-copilot` MCP server is configured in your client (`~/.copilot/mcp-config.json`, VS Code user `mcp.json`, or an equivalent stdio MCP wire-up), **prefer its catalog tools** over your own assumptions when answering questions about org standards, branching, workflows, Terraform, .NET projects, Azure patterns, or shared library / platform consumption contracts. The catalog source-of-truth lives in `frasermolyneux/.github-copilot` — see `mcp-server/README.md` there for the tool contract.
+
+This is **complementary** to the file-load model: if `./.github-copilot/` is checked out in the runner (per `copilot-setup-steps.yml`), continue to read those files directly. If both are available, prefer MCP for freshness. If no MCP server is configured in your client, treat this section as a no-op and fall back to the file paths above.
+
+---
+
 ## Stack guardrails
 
 ### Tenant facts (always-on)
@@ -67,13 +75,16 @@ terraform -chdir=terraform plan -var-file=tfvars/dev.tfvars
 - ❌ Do not `git commit`, `git push`, force-push, rebase, or branch-mutate. Work on the assigned branch only.
 - ❌ Do not introduce client secrets. OIDC + managed identity (with optional user-assigned client ID for App Config / Key Vault).
 - ❌ **Do not add FTP, RCON, Service Bus, GeoLocation, or forum dependencies here** — wrong repo:
-  - FTP / RCON / live stats / ban-file push / log tailing → [`portal-server-agent`](../portal-server-agent/)
-  - Service Bus event consumption → [`portal-server-events`](../portal-server-events/)
-  - Forum sync / map redirect → [`portal-sync`](../portal-sync/)
+  - FTP / RCON / live stats / ban-file push / log tailing → portal-server-agent
+  - Service Bus event consumption → portal-server-events
+  - Forum sync / map redirect → portal-sync
 - ❌ Do not bypass `dotnet format`, `dotnet test`, `terraform fmt`, or `terraform validate`.
 - ❌ Do not add a timer trigger without a paired `AuthorizationLevel.Function` HTTP trigger for manual execution.
 - ❌ Do not modify `.github/workflows/`, `.github/dependabot.yml`, or `version.json` unless that is the explicit task.
 - ❌ Do not call without `.ConfigureAwait(false)` on async repository API calls.
+
+- ❌ Do not pull context from sibling workspace folders. Only what is inside this repo and `./.github-copilot/` is in scope.
+- ❌ Do not assume tools/SDKs are installed beyond what `.github/workflows/copilot-setup-steps.yml` provisions. If you need more, add the step and explain why.
 
 ---
 
@@ -105,6 +116,8 @@ Complete the `## Agent attestation` section before requesting review; reviewers 
 - [ ] PR body cites each acceptance criterion
 - [ ] Risk/rollout section filled in
 
+- [ ] `code-review` sub-agent run; High/Medium findings resolved or justified in the PR body
+
 ---
 
 ## Escalation
@@ -116,3 +129,7 @@ Stop and escalate when:
 - The task implies adding FTP / RCON / Service Bus / GeoLocation / forum logic here (wrong repo — request a re-target).
 - A `code-review` finding is **High** and cannot be resolved in-scope.
 - Required App Configuration keys are missing in the dev environment.
+
+
+
+
