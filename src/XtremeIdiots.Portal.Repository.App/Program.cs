@@ -63,9 +63,14 @@ var host = new HostBuilder()
     {
         var configuration = context.Configuration;
 
+        ValidateTelemetryFilterConfiguration(configuration);
+
         services.AddLogging();
         services.AddSingleton<ITelemetryInitializer, TelemetryInitializer>();
-        services.AddApplicationInsightsTelemetryWorkerService();
+        services.AddApplicationInsightsTelemetryWorkerService(options =>
+        {
+            options.EnableAdaptiveSampling = false;
+        });
         services.ConfigureFunctionsApplicationInsights();
         services.AddObservability();
 
@@ -78,3 +83,38 @@ var host = new HostBuilder()
     .Build();
 
 await host.RunAsync().ConfigureAwait(false);
+
+static void ValidateTelemetryFilterConfiguration(IConfiguration configuration)
+{
+    if (string.IsNullOrWhiteSpace(configuration["AzureAppConfiguration:Endpoint"]))
+    {
+        return;
+    }
+
+    var requiredKeys = new[]
+    {
+        "ApplicationInsights:TelemetryFilter:Enabled",
+        "ApplicationInsights:TelemetryFilter:Requests:Enabled",
+        "ApplicationInsights:TelemetryFilter:Traces:Enabled",
+        "ApplicationInsights:TelemetryFilter:CustomEvents:Enabled",
+    };
+
+    var missingKeys = requiredKeys
+        .Where(key => string.IsNullOrWhiteSpace(configuration[key]))
+        .ToList();
+
+    var hasAllowedNamePrefixes =
+        !string.IsNullOrWhiteSpace(configuration["ApplicationInsights:TelemetryFilter:CustomEvents:AllowedNamePrefixes:0"]) ||
+        !string.IsNullOrWhiteSpace(configuration["ApplicationInsights:TelemetryFilter:CustomEvents:AllowedNamePrefixes"]);
+
+    if (!hasAllowedNamePrefixes)
+    {
+        missingKeys.Add("ApplicationInsights:TelemetryFilter:CustomEvents:AllowedNamePrefixes");
+    }
+
+    if (missingKeys.Count > 0)
+    {
+        throw new InvalidOperationException(
+            $"Missing required App Configuration telemetry filter keys: {string.Join(", ", missingKeys)}");
+    }
+}
