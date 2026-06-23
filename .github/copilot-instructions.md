@@ -25,7 +25,7 @@ All functions live under [src/XtremeIdiots.Portal.Repository.App/Functions/](src
 
 - [DataMaintenance.cs](src/XtremeIdiots.Portal.Repository.App/Functions/DataMaintenance.cs) — four `TimerTrigger` cleanups (prune chat messages hourly, prune game-server events daily, prune game-server stats daily, reset system-assigned player tags daily). Each timer has a paired `AuthorizationLevel.Function` HTTP trigger for manual invocation.
 - [MapPopularity.cs](src/XtremeIdiots.Portal.Repository.App/Functions/MapPopularity.cs) — hourly rebuild of map popularity rankings.
-- [HealthCheck.cs](src/XtremeIdiots.Portal.Repository.App/Functions/HealthCheck.cs) — anonymous `GET /api/health` returning aggregated `HealthCheckService` status.
+- [HealthCheck.cs](src/XtremeIdiots.Portal.Repository.App/Functions/HealthCheck.cs) — anonymous `GET /api/health/live` (process liveness) and `GET /api/health/ready` (aggregated `HealthCheckService` readiness status).
 
 ## Required configuration
 
