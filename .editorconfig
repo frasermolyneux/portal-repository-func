@@ -34,7 +34,7 @@ dotnet_style_null_propagation = true:warning
 dotnet_style_namespace_match_folder = true:warning
 
 # Defer broad style-only churn in existing code.
-dotnet_diagnostic.IDE0011.severity = suggestion
+dotnet_diagnostic.IDE0011.severity = warning
 dotnet_diagnostic.IDE0058.severity = suggestion
 dotnet_diagnostic.IDE0060.severity = suggestion
 dotnet_diagnostic.IDE0161.severity = suggestion

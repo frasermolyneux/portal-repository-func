@@ -41,7 +41,9 @@ public class UnclaimedActionReminder(
         log.LogInformation("Found {Count} unclaimed admin actions", unclaimedActions.Count);
 
         if (unclaimedActions.Count >= 50)
+        {
             log.LogWarning("Unclaimed actions query hit page limit of 50; some actions may not trigger reminders");
+        }
 
         // Get all admin users to notify head admins
         const int headAdminPageSize = 200;
@@ -57,7 +59,9 @@ public class UnclaimedActionReminder(
 
         var adminItems = adminsResult.Result.Data.Items;
         if (adminItems.Count() >= headAdminPageSize)
+        {
             log.LogWarning("Head admin query returned {Count} results (page limit {PageSize}); some admins may not receive reminders", adminItems.Count(), headAdminPageSize);
+        }
 
         // Group unclaimed actions by game type for targeted notifications
         var actionsByGameType = unclaimedActions
@@ -79,7 +83,9 @@ public class UnclaimedActionReminder(
                 .ToList();
 
             if (recipients.Count == 0)
+            {
                 continue;
+            }
 
             var title = $"{count} Unclaimed Action{(count > 1 ? "s" : "")} on {gameType}";
             var message = $"There {(count > 1 ? "are" : "is")} {count} unclaimed admin action{(count > 1 ? "s" : "")} that need{(count == 1 ? "s" : "")} review.";
