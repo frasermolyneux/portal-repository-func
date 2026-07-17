@@ -1,24 +1,30 @@
+using System.Net;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Azure.Functions.Worker;
 
 using Moq;
 
-using XtremeIdiots.Portal.Repository.Api.Client.Testing;
+using MX.Api.Abstractions;
+
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Repository.App.Functions;
+using XtremeIdiots.Portal.Repository.App.Services;
 
 namespace XtremeIdiots.Portal.Repository.App.Tests.Functions;
 
 public class DataMaintenanceTests
 {
     private readonly Mock<ILogger<DataMaintenance>> _loggerMock = new();
-    private readonly FakeRepositoryApiClient _fakeRepositoryApiClient = new();
     private readonly IConfiguration _configuration = new ConfigurationBuilder().Build();
+    private readonly Mock<IVpnDetectedTagReconciler> _vpnDetectedTagReconciler = new();
 
     private DataMaintenance CreateSut() => new(
         _loggerMock.Object,
-        _fakeRepositoryApiClient,
-        _configuration
+        CreateRepositoryApiClientMock().Object,
+        _configuration,
+        _vpnDetectedTagReconciler.Object
     );
 
     [Fact]
@@ -72,8 +78,8 @@ public class DataMaintenanceTests
     [Fact]
     public async Task RunPruneChatMessages_ShouldCallPruneChatMessages()
     {
-        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
-        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
+        var repositoryApiClientMock = CreateRepositoryApiClientMock();
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration, _vpnDetectedTagReconciler.Object);
 
         await sut.RunPruneChatMessages(null);
 
@@ -84,8 +90,8 @@ public class DataMaintenanceTests
     [Fact]
     public async Task RunPruneGameServerEvents_ShouldCallPruneGameServerEvents()
     {
-        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
-        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
+        var repositoryApiClientMock = CreateRepositoryApiClientMock();
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration, _vpnDetectedTagReconciler.Object);
 
         await sut.RunPruneGameServerEvents(null);
 
@@ -96,8 +102,8 @@ public class DataMaintenanceTests
     [Fact]
     public async Task RunPruneGameServerStats_ShouldCallPruneGameServerStats()
     {
-        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
-        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
+        var repositoryApiClientMock = CreateRepositoryApiClientMock();
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration, _vpnDetectedTagReconciler.Object);
 
         await sut.RunPruneGameServerStats(null);
 
@@ -108,8 +114,8 @@ public class DataMaintenanceTests
     [Fact]
     public async Task RunPrunePlayerIpAddresses_ShouldCallPrunePlayerIpAddresses()
     {
-        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
-        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
+        var repositoryApiClientMock = CreateRepositoryApiClientMock();
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration, _vpnDetectedTagReconciler.Object);
 
         await sut.RunPrunePlayerIpAddresses(null);
 
@@ -120,8 +126,8 @@ public class DataMaintenanceTests
     [Fact]
     public async Task RunResetSystemAssignedPlayerTags_ShouldCallResetSystemAssignedPlayerTags()
     {
-        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
-        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
+        var repositoryApiClientMock = CreateRepositoryApiClientMock();
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration, _vpnDetectedTagReconciler.Object);
 
         await sut.RunResetSystemAssignedPlayerTags(null);
 
@@ -132,12 +138,38 @@ public class DataMaintenanceTests
     [Fact]
     public async Task RunReconcileConnectedPlayerTags_WithMissingConfig_CompletesWithoutCallingRepositoryClient()
     {
-        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
-        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration);
+        var repositoryApiClientMock = CreateRepositoryApiClientMock();
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration, _vpnDetectedTagReconciler.Object);
 
         await sut.RunReconcileConnectedPlayerTags(null);
 
         Mock.Get(repositoryApiClientMock.Object.DataMaintenance.V1)
             .VerifyNoOtherCalls();
+    }
+
+    [Fact]
+    public async Task RunReconcileVpnDetectedTags_DelegatesToReconciler()
+    {
+        var functionContext = new Mock<FunctionContext>();
+        functionContext.Setup(x => x.CancellationToken).Returns(CancellationToken.None);
+        _vpnDetectedTagReconciler
+            .Setup(x => x.ReconcileAsync(false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new VpnDetectedTagReconciliationSummary(0, 0, 0, 0, 0));
+
+        await CreateSut().RunReconcileVpnDetectedTags(null, functionContext.Object);
+
+        _vpnDetectedTagReconciler.Verify(x => x.ReconcileAsync(false, CancellationToken.None), Times.Once);
+    }
+
+    private static Mock<IRepositoryApiClient> CreateRepositoryApiClientMock()
+    {
+        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
+        var dataMaintenanceApi = Mock.Get(repositoryApiClientMock.Object.DataMaintenance.V1);
+        dataMaintenanceApi.Setup(x => x.PruneChatMessages(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
+        dataMaintenanceApi.Setup(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
+        dataMaintenanceApi.Setup(x => x.PruneGameServerStats(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
+        dataMaintenanceApi.Setup(x => x.PrunePlayerIpAddresses(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
+        dataMaintenanceApi.Setup(x => x.ResetSystemAssignedPlayerTags(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
+        return repositoryApiClientMock;
     }
 }

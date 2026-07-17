@@ -1,9 +1,12 @@
+using System.Net;
+
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 using Moq;
 
-using XtremeIdiots.Portal.Repository.Api.Client.Testing;
+using MX.Api.Abstractions;
+
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Repository.App.Functions;
 
@@ -12,11 +15,10 @@ namespace XtremeIdiots.Portal.Repository.App.Tests.Functions;
 public class MapPopularityTests
 {
     private readonly Mock<ILogger<MapPopularity>> _loggerMock = new();
-    private readonly FakeRepositoryApiClient _fakeRepositoryApiClient = new();
 
     private MapPopularity CreateSut() => new(
         _loggerMock.Object,
-        _fakeRepositoryApiClient
+        CreateRepositoryApiClientMock().Object
     );
 
     [Fact]
@@ -30,12 +32,21 @@ public class MapPopularityTests
     [Fact]
     public async Task RunRebuildMapPopularity_ShouldCallRebuildMapPopularity()
     {
-        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
+        var repositoryApiClientMock = CreateRepositoryApiClientMock();
         var sut = new MapPopularity(_loggerMock.Object, repositoryApiClientMock.Object);
 
         await sut.RunRebuildMapPopularity(new TimerInfo());
 
         Mock.Get(repositoryApiClientMock.Object.Maps.V1)
             .Verify(x => x.RebuildMapPopularity(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private static Mock<IRepositoryApiClient> CreateRepositoryApiClientMock()
+    {
+        var repositoryApiClientMock = new Mock<IRepositoryApiClient> { DefaultValue = DefaultValue.Mock };
+        Mock.Get(repositoryApiClientMock.Object.Maps.V1)
+            .Setup(x => x.RebuildMapPopularity(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResult(HttpStatusCode.OK));
+        return repositoryApiClientMock;
     }
 }

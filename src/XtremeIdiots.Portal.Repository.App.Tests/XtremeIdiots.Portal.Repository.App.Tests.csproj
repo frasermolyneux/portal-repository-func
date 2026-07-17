@@ -11,9 +11,8 @@
     <PackageReference Include="coverlet.collector" Version="10.0.1" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
-    <PackageReference Include="MX.GeoLocation.Api.Client.Testing" Version="1.2.75" />
-    <PackageReference Include="XtremeIdiots.Portal.Integrations.Servers.Api.Client.Testing" Version="2.1.232" />
-    <PackageReference Include="XtremeIdiots.Portal.Repository.Api.Client.Testing" Version="4.0.4" />
+    <PackageReference Include="MX.GeoLocation.Api.Client.Testing" Version="1.2.89" />
+    <PackageReference Include="XtremeIdiots.Portal.Integrations.Servers.Api.Client.Testing" Version="4.1.3" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
   </ItemGroup>

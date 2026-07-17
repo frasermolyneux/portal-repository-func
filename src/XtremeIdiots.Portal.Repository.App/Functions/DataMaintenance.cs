@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
+using XtremeIdiots.Portal.Repository.App.Services;
 
 namespace XtremeIdiots.Portal.Repository.App.Functions;
 
@@ -18,15 +19,18 @@ public class DataMaintenance
     private readonly ILogger<DataMaintenance> _log;
     private readonly IRepositoryApiClient _repositoryApiClient;
     private readonly IConfiguration _configuration;
+    private readonly IVpnDetectedTagReconciler _vpnDetectedTagReconciler;
 
     public DataMaintenance(
         ILogger<DataMaintenance> log,
         IRepositoryApiClient repositoryApiClient,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IVpnDetectedTagReconciler vpnDetectedTagReconciler)
     {
         _log = log;
         _repositoryApiClient = repositoryApiClient;
         _configuration = configuration;
+        _vpnDetectedTagReconciler = vpnDetectedTagReconciler;
     }
 
     [Function(nameof(RunPruneChatMessagesHttp))]
@@ -117,6 +121,32 @@ public class DataMaintenance
         _log.LogInformation("Reconciling Connected Player Tags");
         await ReconcileConnectedPlayerTagsAsync(CancellationToken.None).ConfigureAwait(false);
         _log.LogInformation("Reconcile Connected Player Tags completed successfully");
+    }
+
+    [Function(nameof(RunReconcileVpnDetectedTagsHttp))]
+    public async Task<HttpResponseData> RunReconcileVpnDetectedTagsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    {
+        await RunReconcileVpnDetectedTagsAsync(force: true, context.CancellationToken).ConfigureAwait(false);
+        return req.CreateResponse(HttpStatusCode.OK);
+    }
+
+    [Function(nameof(RunReconcileVpnDetectedTags))]
+    public async Task RunReconcileVpnDetectedTags([TimerTrigger("0 0 4 * * *")] TimerInfo? myTimer, FunctionContext context)
+    {
+        await RunReconcileVpnDetectedTagsAsync(force: false, context.CancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task RunReconcileVpnDetectedTagsAsync(bool force, CancellationToken cancellationToken)
+    {
+        _log.LogInformation("Reconciling VPN detected player tags");
+        var summary = await _vpnDetectedTagReconciler.ReconcileAsync(force, cancellationToken).ConfigureAwait(false);
+        _log.LogInformation(
+            "VPN detected tag reconciliation completed. Candidates: {Candidates}; Players: {Players}; Added: {TagsAdded}; Removed: {TagsRemoved}; Skipped: {PlayersSkipped}",
+            summary.Candidates,
+            summary.PlayersEvaluated,
+            summary.TagsAdded,
+            summary.TagsRemoved,
+            summary.PlayersSkipped);
     }
 
     private async Task ReconcileConnectedPlayerTagsAsync(CancellationToken cancellationToken)
