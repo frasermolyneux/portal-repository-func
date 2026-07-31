@@ -45,22 +45,24 @@ public class UnclaimedActionReminder(
             log.LogWarning("Unclaimed actions query hit page limit of 50; some actions may not trigger reminders");
         }
 
-        // Get all admin users to notify head admins
-        const int headAdminPageSize = 200;
+        // Get all admin users to notify. Uses AnyAdmin so global admins (Webmaster / SeniorAdmin)
+        // are included even when they hold no game-scoped HeadAdmin claim; per-game-type recipients
+        // are then selected from this set below.
+        const int adminPageSize = 200;
         var adminsResult = await repositoryApiClient.UserProfiles.V1
-            .GetUserProfiles(null, UserProfileFilter.HeadAdmins, 0, headAdminPageSize, null)
+            .GetUserProfiles(null, UserProfileFilter.AnyAdmin, 0, adminPageSize, null)
             .ConfigureAwait(false);
 
         if (adminsResult.Result?.Data?.Items is null || !adminsResult.Result.Data.Items.Any())
         {
-            log.LogInformation("No head admins found to notify");
+            log.LogInformation("No admins found to notify");
             return;
         }
 
         var adminItems = adminsResult.Result.Data.Items;
-        if (adminItems.Count() >= headAdminPageSize)
+        if (adminItems.Count() >= adminPageSize)
         {
-            log.LogWarning("Head admin query returned {Count} results (page limit {PageSize}); some admins may not receive reminders", adminItems.Count(), headAdminPageSize);
+            log.LogWarning("Admin query returned {Count} results (page limit {PageSize}); some admins may not receive reminders", adminItems.Count(), adminPageSize);
         }
 
         // Group unclaimed actions by game type for targeted notifications
