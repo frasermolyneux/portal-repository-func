@@ -75,9 +75,10 @@ public class UnclaimedActionReminder(
             var count = group.Count();
             var gameTypeString = gameType.ToString();
 
-            // Find head admins and senior admins for this game type
+            // Find head admins, senior admins and webmasters for this game type
             var recipients = adminItems
                 .Where(up => up.UserProfileClaims.Any(c =>
+                    c.ClaimType == UserProfileClaimType.Webmaster ||
                     c.ClaimType == UserProfileClaimType.SeniorAdmin ||
                     (c.ClaimType == UserProfileClaimType.HeadAdmin && c.ClaimValue == gameTypeString)))
                 .ToList();
