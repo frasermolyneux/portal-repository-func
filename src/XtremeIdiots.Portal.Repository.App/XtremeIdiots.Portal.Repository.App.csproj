@@ -21,10 +21,10 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.1.0" OutputItemType="Analyzer" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.52.0" />
-    <PackageReference Include="MX.Api.Client" Version="2.3.75" />
+    <PackageReference Include="MX.Api.Client" Version="2.3.76" />
     <PackageReference Include="MX.GeoLocation.Api.Client.V1" Version="1.2.96" />
     <PackageReference Include="MX.Observability.ApplicationInsights.WorkerService" Version="1.1.28" />
-    <PackageReference Include="XtremeIdiots.Portal.Repository.Api.Client.V1" Version="4.2.16" />
+    <PackageReference Include="XtremeIdiots.Portal.Repository.Api.Client.V1" Version="4.2.21" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
