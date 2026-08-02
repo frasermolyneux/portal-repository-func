@@ -10,7 +10,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using MX.Api.Client.Extensions;
-using MX.Api.Client.Configuration;
 using MX.GeoLocation.Api.Client.V1;
 using MX.Observability.ApplicationInsights.WorkerService;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
@@ -80,8 +79,7 @@ var host = new HostBuilder()
 
         services.AddRepositoryApiClient(options => options
             .WithBaseUrl(configuration["RepositoryApi:BaseUrl"] ?? throw new InvalidOperationException("RepositoryApi:BaseUrl configuration is required"))
-            .WithEntraIdAuthentication(configuration["RepositoryApi:ApplicationAudience"] ?? throw new InvalidOperationException("RepositoryApi:ApplicationAudience configuration is required"))
-            .WithCaching(c => c.UseLibraryDefaults()));
+            .WithEntraIdAuthentication(configuration["RepositoryApi:ApplicationAudience"] ?? throw new InvalidOperationException("RepositoryApi:ApplicationAudience configuration is required")));
 
         var geoBaseUrl = configuration["GeoLocationApi:BaseUrl"];
         var geoApiKey = configuration["GeoLocationApi:ApiKey"];
