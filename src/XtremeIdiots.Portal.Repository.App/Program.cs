@@ -82,14 +82,17 @@ var host = new HostBuilder()
         // are scoped per typed sub-API by MX.Api.Client 2.3.77 SharedCacheConfiguration (consumed
         // internally by Repository client 4.2.22), so the consumer-side .WithCaching(...) call no
         // longer fans a single delegate across every sub-API and no longer throws at DI compose.
-        // This app only invokes DataMaintenance mutations (Prune*, Reset*), Maps.RebuildMapPopularity
-        // (mutation), Players.SetVpnDetectedTag (mutation) + a paged read, AdminActions/UserProfiles
-        // reads for reminders, and Notifications.CreateNotification (mutation). None of the timers
-        // performs a cached read followed by a mutation on the same key within one invocation, so
-        // enabling the library's read-only defaults is safe here — the default policies target
-        // GET operations only and every mutation this app performs uses a distinct verb/method,
-        // meaning any cached value for the read side would already have been fetched fresh at
-        // timer-fire time.
+        //
+        // Safety: this app only invokes DataMaintenance mutations (Prune*, Reset*),
+        // Maps.RebuildMapPopularity (mutation), Players.SetVpnDetectedTag (mutation) plus a paged
+        // read of GetVpnDetectedTagReconciliationCandidates, AdminActions/UserProfiles reads for
+        // reminders, and Notifications.CreateNotification (mutation). The library's default policies
+        // only cache GET operations, and no timer in this app performs a cached read followed by a
+        // mutation of the same key. Note the L1 cache is process-scoped and can therefore outlive a
+        // single invocation while the Functions worker stays warm, so any staleness window is bounded
+        // by the library default TTL, not by the timer schedule — acceptable here because the reads
+        // above are advisory (reminder recipients, VPN tag reconciliation candidates) rather than
+        // authoritative reads that gate a subsequent write on the same key.
         services.AddRepositoryApiClient(options => options
             .WithBaseUrl(configuration["RepositoryApi:BaseUrl"] ?? throw new InvalidOperationException("RepositoryApi:BaseUrl configuration is required"))
             .WithEntraIdAuthentication(configuration["RepositoryApi:ApplicationAudience"] ?? throw new InvalidOperationException("RepositoryApi:ApplicationAudience configuration is required"))
