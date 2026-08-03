@@ -109,7 +109,9 @@ var host = new HostBuilder()
             services.AddGeoLocationApiClient(options => options
                 .WithBaseUrl(geoBaseUrl)
                 .WithApiKeyAuthentication(geoApiKey, "Ocp-Apim-Subscription-Key")
-                .WithEntraIdAuthentication(geoAudience));
+                .WithEntraIdAuthentication(geoAudience)
+                .WithCachePartition("portal-repository-func")
+                .WithCaching(c => c.UseLibraryDefaults()));
         }
 
         services.AddSingleton<IVpnDetectedTagReconciler, VpnDetectedTagReconciler>();
