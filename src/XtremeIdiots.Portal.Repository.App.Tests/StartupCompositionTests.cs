@@ -63,6 +63,9 @@ public sealed class StartupCompositionTests
             typeof(IGameServersApi),
             typeof(IChatMessagesApi),
             typeof(IMapsApi),
+            typeof(IDataMaintenanceApi),
+            typeof(IUserProfileApi),
+            typeof(INotificationsApi),
         ];
     }
 
@@ -71,9 +74,14 @@ public sealed class StartupCompositionTests
         var services = new ServiceCollection();
         services.AddLogging();
 
+        // Must mirror Program.cs exactly, including .WithCaching(...) — this is the registration
+        // shape that crashed in production with Repository client 4.2.21 / MX.Api.Client 2.3.76
+        // (ArgumentException fanning a single cache delegate across every typed sub-API).
         services.AddRepositoryApiClient(options => options
             .WithBaseUrl(BaseUrl)
-            .WithEntraIdAuthentication(Audience));
+            .WithEntraIdAuthentication(Audience)
+            .WithCachePartition("portal-repository-func")
+            .WithCaching(c => c.UseLibraryDefaults()));
 
         return services.BuildServiceProvider(validateScopes: true);
     }

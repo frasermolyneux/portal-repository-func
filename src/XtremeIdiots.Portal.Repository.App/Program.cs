@@ -78,9 +78,23 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
         services.AddObservability();
 
+        // Repository client L1 caching (re-enabled). The client library's default cache policies
+        // are scoped per typed sub-API by MX.Api.Client 2.3.77 SharedCacheConfiguration (consumed
+        // internally by Repository client 4.2.22), so the consumer-side .WithCaching(...) call no
+        // longer fans a single delegate across every sub-API and no longer throws at DI compose.
+        // This app only invokes DataMaintenance mutations (Prune*, Reset*), Maps.RebuildMapPopularity
+        // (mutation), Players.SetVpnDetectedTag (mutation) + a paged read, AdminActions/UserProfiles
+        // reads for reminders, and Notifications.CreateNotification (mutation). None of the timers
+        // performs a cached read followed by a mutation on the same key within one invocation, so
+        // enabling the library's read-only defaults is safe here — the default policies target
+        // GET operations only and every mutation this app performs uses a distinct verb/method,
+        // meaning any cached value for the read side would already have been fetched fresh at
+        // timer-fire time.
         services.AddRepositoryApiClient(options => options
             .WithBaseUrl(configuration["RepositoryApi:BaseUrl"] ?? throw new InvalidOperationException("RepositoryApi:BaseUrl configuration is required"))
-            .WithEntraIdAuthentication(configuration["RepositoryApi:ApplicationAudience"] ?? throw new InvalidOperationException("RepositoryApi:ApplicationAudience configuration is required")));
+            .WithEntraIdAuthentication(configuration["RepositoryApi:ApplicationAudience"] ?? throw new InvalidOperationException("RepositoryApi:ApplicationAudience configuration is required"))
+            .WithCachePartition("portal-repository-func")
+            .WithCaching(c => c.UseLibraryDefaults()));
 
         var geoBaseUrl = configuration["GeoLocationApi:BaseUrl"];
         var geoApiKey = configuration["GeoLocationApi:ApiKey"];
