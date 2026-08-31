@@ -1,135 +1,41 @@
 # AGENTS.md — portal-repository-func
 
-.NET 9 isolated Azure Functions app hosting **scheduled maintenance** for the Portal Repository (timer-triggered cleanups + map-popularity rebuild + a health endpoint). Single external dependency: the Portal Repository API via the typed client. Anything FTP / RCON / Service Bus / GeoLocation / forum-sync belongs in **other** repos — this one is intentionally small.
+This repository is a .NET 9 isolated Azure Functions workload for scheduled Portal Repository maintenance, reconciliation, reminders, and health checks.
 
-This file is the brief for the **GitHub Copilot coding agent** (and any other agent that follows the [agents.md](https://agents.md) convention) when it runs in a cloud runner without the local VS Code multi-root workspace context.
+## Layout
 
-> If you are a human reading this in VS Code, prefer `.github/copilot-instructions.md` for project orientation. `AGENTS.md` is the agent execution brief.
+- `src/XtremeIdiots.Portal.Repository.App` — function host, triggers, client composition, and operational services.
+- `src/XtremeIdiots.Portal.Repository.App.Tests` — function, service, health, and startup-composition tests.
+- `src/XtremeIdiots.Portal.Repository.App.sln` — solution.
+- `terraform` — Function App, storage, identity assignment, monitoring, and remote-state consumption.
 
----
+The exact SDK is pinned in `global.json`. The app consumes the V1 Portal Repository typed client and optionally the GeoLocation client for VPN-tag reconciliation.
 
-## Required reading (read these BEFORE doing any work)
-
-The `copilot-setup-steps.yml` workflow checks out `frasermolyneux/.github-copilot` at `./.github-copilot/` in the runner, so the paths below resolve.
-
-1. `.github/copilot-instructions.md` — repo-specific orientation, build commands, conventions, **scope rules**
-2. `.github-copilot/.github/instructions/personal.working-preferences.instructions.md`
-3. `.github-copilot/.github/copilot-instructions.md` — org-wide catalog
-4. Stack-specific files — see **Stack guardrails** below
-
----
-
-## Org conventions via MCP (when available)
-
-If a `frasermolyneux-copilot` MCP server is configured in your client (`~/.copilot/mcp-config.json`, VS Code user `mcp.json`, or an equivalent stdio MCP wire-up), **prefer its catalog tools** over your own assumptions when answering questions about org standards, branching, workflows, Terraform, .NET projects, Azure patterns, or shared library / platform consumption contracts. The catalog source-of-truth lives in `frasermolyneux/.github-copilot` — see `mcp-server/README.md` there for the tool contract.
-
-This is **complementary** to the file-load model: if `./.github-copilot/` is checked out in the runner (per `copilot-setup-steps.yml`), continue to read those files directly. If both are available, prefer MCP for freshness. If no MCP server is configured in your client, treat this section as a no-op and fall back to the file paths above.
-
----
-
-## Stack guardrails
-
-### Tenant facts (always-on)
-- `tenant.subscriptions`, `tenant.regions`, `tenant.identity`
-
-### Enforceable standards
-- `standards.oidc-and-secrets` — **no client secrets**
-- `standards.dotnet-project`
-- `standards.azure-naming`, `standards.azure-tagging`, `standards.terraform-style`
-- `standards.branching-and-prs`
-
-### Patterns
-- `patterns.api-client` — consumes the Portal Repository V1 client
-- `patterns.nbgv-versioning`
-- `patterns.terraform-remote-state`
-
-### Platform consumption contracts
-- `platform.workloads`, `platform.monitoring`, `platform.hosting`
-
-### Shared
-- `shared.api-client-abstractions`
-- `shared.observability-appinsights`
-
----
-
-## Build, test, format
+## Useful commands
 
 ```pwsh
-cd src/XtremeIdiots.Portal.Repository.App
-dotnet clean
-dotnet build
-cd ../..
-dotnet test src --filter "FullyQualifiedName!~IntegrationTests"
-dotnet format src --verify-no-changes
-
+dotnet build src\XtremeIdiots.Portal.Repository.App.sln
+dotnet test src\XtremeIdiots.Portal.Repository.App.sln
+dotnet format src\XtremeIdiots.Portal.Repository.App.sln --verify-no-changes
 terraform -chdir=terraform fmt -check -recursive
-terraform -chdir=terraform init -backend-config=backends/dev.backend.hcl
-terraform -chdir=terraform validate
-terraform -chdir=terraform plan -var-file=tfvars/dev.tfvars
 ```
 
----
+Run Terraform init/validate/plan only for infrastructure work, with matching `terraform\backends\<env>.backend.hcl` and `terraform\tfvars\<env>.tfvars`.
 
-## Do NOT
+## Repository boundaries
 
-- ❌ Do not `git commit`, `git push`, force-push, rebase, or branch-mutate. Work on the assigned branch only.
-- ❌ Do not introduce client secrets. OIDC + managed identity (with optional user-assigned client ID for App Config / Key Vault).
-- ❌ **Do not add FTP, RCON, Service Bus, GeoLocation, or forum dependencies here** — wrong repo:
-  - FTP / RCON / live stats / ban-file push / log tailing → portal-server-agent
-  - Service Bus event consumption → portal-server-events
-  - Forum sync / map redirect → portal-sync
-- ❌ Do not bypass `dotnet format`, `dotnet test`, `terraform fmt`, or `terraform validate`.
-- ❌ Do not add a timer trigger without a paired `AuthorizationLevel.Function` HTTP trigger for manual execution.
-- ❌ Do not modify `.github/workflows/`, `.github/dependabot.yml`, or `version.json` unless that is the explicit task.
-- ❌ Do not call without `.ConfigureAwait(false)` on async repository API calls.
+- Keep orchestration in the function workload and domain persistence/behavior behind repository API operations.
+- Preserve established schedules and trigger authorization. Maintenance, reconciliation, and reminder operations with HTTP entry points use function-key authorization; health endpoints remain anonymous. Map-popularity rebuild is timer-only.
+- Timer and manual paths for the same operation must share behavior. Consider duplicate invocation and partial failure before adding side effects; there is no repository-wide app-level retry or idempotency framework.
+- Preserve V1 repository-client request/response compatibility and startup composition. Keep async API calls cancellation-aware where supported and consistent with existing `ConfigureAwait(false)` usage.
+- VPN-tag reconciliation uses bounded paging/batching, skips incomplete intelligence, and changes a tag only when detected state differs. Preserve these operational safeguards.
+- Unclaimed-action reminders intentionally continue after an individual notification failure and warn when query page limits are reached.
+- Configuration comes from environment/user secrets and optional Azure App Configuration with Key Vault resolution; do not embed credentials.
+- Preserve the AzureRM provider constraint, azurerm backend, dev/prd environment pairing, and remote-state interfaces to platform workloads/monitoring and portal foundations.
 
-- ❌ Do not pull context from sibling workspace folders. Only what is inside this repo and `./.github-copilot/` is in scope.
-- ❌ Do not assume tools/SDKs are installed beyond what `.github/workflows/copilot-setup-steps.yml` provisions. If you need more, add the step and explain why.
+## Authoritative details
 
----
-
-## Opening the PR
-
-You MUST use `.github/PULL_REQUEST_TEMPLATE.md` as your PR body — do **not** write a freeform body. The org template is inherited from `frasermolyneux/.github` and GitHub pre-populates it when you open the PR. Concretely:
-
-1. Fill `## Summary` (one line) and `Closes #<issue>`.
-2. Tick the relevant `## Type of change` box.
-3. Paste the **actual command output** from your Build, Tests, and Format check runs into `## Validation evidence`. Show the real summary line, not "tests passed".
-4. Fill `## Risk and rollout` — blast radius, auto-deploy?, manual steps post-merge, rollback plan.
-5. Tick **every** box in `## Agent attestation`.
-6. Delete `## Consumer impact` only if no published contract (Abstractions / Client NuGet / Service Bus DTO / Terraform output) changed.
-
-Complete the `## Agent attestation` section before requesting review; reviewers use it as a readiness checklist.
-
----
-
-## Pre-PR checks (run before you open the PR)
-
-- [ ] `dotnet build` succeeds (clean)
-- [ ] `dotnet test --filter "FullyQualifiedName!~IntegrationTests"` passes
-- [ ] `dotnet format --verify-no-changes` passes
-- [ ] `terraform fmt -check -recursive` passes
-- [ ] `terraform validate` + `terraform plan -var-file=tfvars/dev.tfvars` succeed
-- [ ] Each new timer has a paired HTTP trigger
-- [ ] No new external dependencies (FTP / RCON / Service Bus / GeoLocation / forums)
-- [ ] No new secrets / GUIDs / connection strings
-- [ ] PR body cites each acceptance criterion
-- [ ] Risk/rollout section filled in
-
-- [ ] `code-review` sub-agent run; High/Medium findings resolved or justified in the PR body
-
----
-
-## Escalation
-
-If you hit any of the conditions below, **open the PR as draft** and **apply the `needs-decision` label** instead of pushing forward to ready-for-review. Post a comment on the originating issue summarising what's blocking you and what decision is needed.
-
-Stop and escalate when:
-
-- The task implies adding FTP / RCON / Service Bus / GeoLocation / forum logic here (wrong repo — request a re-target).
-- A `code-review` finding is **High** and cannot be resolved in-scope.
-- Required App Configuration keys are missing in the dev environment.
-
-
-
-
+- `src/XtremeIdiots.Portal.Repository.App\Program.cs`
+- `src/XtremeIdiots.Portal.Repository.App\Functions`
+- `src/XtremeIdiots.Portal.Repository.App\Services`
+- `docs/development-workflows.md`

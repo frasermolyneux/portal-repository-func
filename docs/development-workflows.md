@@ -78,7 +78,7 @@ graph TD
 
 - Copilot branches (`copilot/*`) skip Terraform plans by default in **pr-verify.yml**
 - Add `run-dev-plan` label to enable the dev plan; add both `run-dev-plan` and `run-prd-plan` to run the prd plan
-- Setup requirements are defined in **copilot-setup-steps.yml** (checkout + .NET 9.0.x)
+- Setup requirements are defined in **copilot-setup-steps.yml** (runtime-only .NET SDK 9.0.315; repository checkout and restore are left to the agent)
 
 ## Composite Actions (frasermolyneux/actions)
 
