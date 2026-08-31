@@ -1,12 +1,12 @@
 # AGENTS.md — portal-repository-func
 
-This repository is a .NET 9 isolated Azure Functions workload for scheduled Portal Repository maintenance, reconciliation, reminders, and health checks.
+This repository is a .NET 10 isolated Azure Functions workload for scheduled Portal Repository maintenance, reconciliation, reminders, and health checks.
 
 ## Layout
 
 - `src/XtremeIdiots.Portal.Repository.App` — function host, triggers, client composition, and operational services.
 - `src/XtremeIdiots.Portal.Repository.App.Tests` — function, service, health, and startup-composition tests.
-- `src/XtremeIdiots.Portal.Repository.App.sln` — solution.
+- `src/XtremeIdiots.Portal.Repository.App.slnx` — solution.
 - `terraform` — Function App, storage, identity assignment, monitoring, and remote-state consumption.
 
 The exact SDK is pinned in `global.json`. The app consumes the V1 Portal Repository typed client and optionally the GeoLocation client for VPN-tag reconciliation.
@@ -14,9 +14,9 @@ The exact SDK is pinned in `global.json`. The app consumes the V1 Portal Reposit
 ## Useful commands
 
 ```pwsh
-dotnet build src\XtremeIdiots.Portal.Repository.App.sln
-dotnet test src\XtremeIdiots.Portal.Repository.App.sln
-dotnet format src\XtremeIdiots.Portal.Repository.App.sln --verify-no-changes
+dotnet build src\XtremeIdiots.Portal.Repository.App.slnx
+dotnet test src\XtremeIdiots.Portal.Repository.App.slnx
+dotnet format src\XtremeIdiots.Portal.Repository.App.slnx --verify-no-changes
 terraform -chdir=terraform fmt -check -recursive
 ```
 

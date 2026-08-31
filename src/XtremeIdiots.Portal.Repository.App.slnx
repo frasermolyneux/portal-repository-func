@@ -1,0 +1,9 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="XtremeIdiots.Portal.Repository.App.Tests/XtremeIdiots.Portal.Repository.App.Tests.csproj" />
+  <Project Path="XtremeIdiots.Portal.Repository.App/XtremeIdiots.Portal.Repository.App.csproj" />
+</Solution>

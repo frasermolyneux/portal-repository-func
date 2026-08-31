@@ -1,6 +1,6 @@
 # Portal Repository Functions
 
-- This is a .NET 9 isolated Functions app for scheduled repository maintenance, map-popularity rebuilding, player-tag reconciliation, unclaimed-action reminders, and liveness/readiness endpoints.
+- This is a .NET 10 isolated Functions app for scheduled repository maintenance, map-popularity rebuilding, player-tag reconciliation, unclaimed-action reminders, and liveness/readiness endpoints.
 - Repository operations use `XtremeIdiots.Portal.Repository.Api.Client.V1` with Entra ID authentication. GeoLocation integration is optional and limited to VPN-detection reconciliation.
 - Preserve timer schedules, existing HTTP-trigger authorization, and shared execution paths between scheduled and manual invocations. Map popularity currently has no manual HTTP trigger.
 - There is no app-wide explicit retry or idempotency framework. Keep operations safe under repeated timer/manual invocation and preserve per-recipient failure isolation in reminder processing.
