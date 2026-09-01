@@ -13,7 +13,7 @@
 * [Development Workflows](/docs/development-workflows.md) - Branch strategy, CI/CD triggers, and deployment flows
 
 ## Overview
-Azure Functions isolated app (.NET 9) that keeps XtremeIdiots Portal repository data fresh. Timer and HTTP-triggered jobs prune historical chat/events/stats, rebuild map popularity, snapshot live server telemetry, and synchronize ban/log file metadata across Call of Duty and Insurgency servers. Integrates the Repository, Servers Integration, and GeoLocation API clients, enriching live player data with geo lookups while emitting Application Insights telemetry and caching frequent lookups.
+Azure Functions isolated app (.NET 10) that keeps XtremeIdiots Portal repository data fresh. Timer and HTTP-triggered jobs prune historical chat/events/stats, rebuild map popularity, snapshot live server telemetry, and synchronize ban/log file metadata across Call of Duty and Insurgency servers. Integrates the Repository, Servers Integration, and GeoLocation API clients, enriching live player data with geo lookups while emitting Application Insights telemetry and caching frequent lookups.
 
 ## Contributing
 Please read the [contributing](CONTRIBUTING.md) guidance; this is a learning and development project.

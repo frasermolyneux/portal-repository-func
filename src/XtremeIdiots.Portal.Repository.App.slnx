@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="XtremeIdiots.Portal.Repository.App.Tests/XtremeIdiots.Portal.Repository.App.Tests.csproj" />
+  <Project Path="XtremeIdiots.Portal.Repository.App/XtremeIdiots.Portal.Repository.App.csproj" />
+</Solution>
