@@ -5,12 +5,13 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Notifications;
+using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.UserProfiles;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 
 namespace XtremeIdiots.Portal.Repository.App.Functions;
 
-[LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Checking for unclaimed admin actions to send reminders")]
 public partial class UnclaimedActionReminder(
     ILogger<UnclaimedActionReminder> log,
     IRepositoryApiClient repositoryApiClient)
@@ -43,7 +44,7 @@ public partial class UnclaimedActionReminder(
         LogProcessingCompleted(log);
     }
 
-    private async Task<List<AdminAction>>? GetUnclaimedActions()
+    private async Task<List<AdminActionDto>?> GetUnclaimedActions()
     {
         // Note: UnclaimedActions matches all action types (bans, temp bans, kicks, etc.) without a UserProfile.
         var unclaimedResult = await repositoryApiClient.AdminActions.V1
@@ -67,7 +68,7 @@ public partial class UnclaimedActionReminder(
         return unclaimedActions;
     }
 
-    private async Task<List<UserProfile>?> GetAdmins()
+    private async Task<List<UserProfileDto>?> GetAdmins()
     {
         // Get all admin users to notify. Uses AnyAdmin so global admins (Webmaster / SeniorAdmin)
         // are included even when they hold no game-scoped HeadAdmin claim; per-game-type recipients
@@ -92,7 +93,7 @@ public partial class UnclaimedActionReminder(
         return admins;
     }
 
-    private async Task SendReminders(List<AdminAction> unclaimedActions, List<UserProfile> admins)
+    private async Task SendReminders(List<AdminActionDto> unclaimedActions, List<UserProfileDto> admins)
     {
         // Group unclaimed actions by game type for targeted notifications
         var actionsByGameType = unclaimedActions
@@ -108,7 +109,7 @@ public partial class UnclaimedActionReminder(
         }
     }
 
-    private async Task SendRemindersForGameType(GameType gameType, int count, List<UserProfile> admins)
+    private async Task SendRemindersForGameType(GameType gameType, int count, List<UserProfileDto> admins)
     {
         var gameTypeString = gameType.ToString();
 
@@ -151,6 +152,9 @@ public partial class UnclaimedActionReminder(
 
         LogRemindersSent(log, gameType, recipients.Count);
     }
+
+    [LoggerMessage(EventId = 1, Level = LogLevel.Information, Message = "Checking for unclaimed admin actions to send reminders")]
+    private static partial void LogCheckingForUnclaimedAdminActions(ILogger logger);
 
     [LoggerMessage(EventId = 2, Level = LogLevel.Information, Message = "No unclaimed admin actions found")]
     private static partial void LogNoUnclaimedAdminActions(ILogger logger);
