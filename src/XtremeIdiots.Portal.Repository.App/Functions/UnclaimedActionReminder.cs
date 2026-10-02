@@ -5,7 +5,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 using XtremeIdiots.Portal.Repository.Abstractions.Constants.V1;
-using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.AdminActions;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.Notifications;
 using XtremeIdiots.Portal.Repository.Abstractions.Models.V1.UserProfiles;
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
@@ -28,24 +27,6 @@ public partial class UnclaimedActionReminder(
     {
         LogCheckingForUnclaimedAdminActions(log);
 
-        var unclaimedActions = await GetUnclaimedActions().ConfigureAwait(false);
-        if (unclaimedActions is null)
-        {
-            return;
-        }
-
-        var admins = await GetAdmins().ConfigureAwait(false);
-        if (admins is null)
-        {
-            return;
-        }
-
-        await SendReminders(unclaimedActions, admins).ConfigureAwait(false);
-        LogProcessingCompleted(log);
-    }
-
-    private async Task<List<AdminActionDto>?> GetUnclaimedActions()
-    {
         // Note: UnclaimedActions matches all action types (bans, temp bans, kicks, etc.) without a UserProfile.
         var unclaimedResult = await repositoryApiClient.AdminActions.V1
             .GetAdminActions(null, null, null, AdminActionFilter.UnclaimedActions, 0, 50, AdminActionOrder.CreatedDesc)
@@ -54,7 +35,7 @@ public partial class UnclaimedActionReminder(
         if (unclaimedResult.Result?.Data?.Items is null || !unclaimedResult.Result.Data.Items.Any())
         {
             LogNoUnclaimedAdminActions(log);
-            return null;
+            return;
         }
 
         var unclaimedActions = unclaimedResult.Result.Data.Items.ToList();
@@ -65,11 +46,6 @@ public partial class UnclaimedActionReminder(
             LogUnclaimedActionsPageLimitReached(log);
         }
 
-        return unclaimedActions;
-    }
-
-    private async Task<List<UserProfileDto>?> GetAdmins()
-    {
         // Get all admin users to notify. Uses AnyAdmin so global admins (Webmaster / SeniorAdmin)
         // are included even when they hold no game-scoped HeadAdmin claim; per-game-type recipients
         // are then selected from this set below.
@@ -81,20 +57,15 @@ public partial class UnclaimedActionReminder(
         if (adminsResult.Result?.Data?.Items is null || !adminsResult.Result.Data.Items.Any())
         {
             LogNoAdminsFound(log);
-            return null;
+            return;
         }
 
-        var admins = adminsResult.Result.Data.Items.ToList();
-        if (admins.Count >= adminPageSize)
+        var adminItems = adminsResult.Result.Data.Items;
+        if (adminItems.Count() >= adminPageSize)
         {
-            LogAdminQueryPageLimitReached(log, admins.Count, adminPageSize);
+            LogAdminQueryPageLimitReached(log, adminItems.Count(), adminPageSize);
         }
 
-        return admins;
-    }
-
-    private async Task SendReminders(List<AdminActionDto> unclaimedActions, List<UserProfileDto> admins)
-    {
         // Group unclaimed actions by game type for targeted notifications
         var actionsByGameType = unclaimedActions
             .Where(a => a.Player?.GameType is not null)
@@ -105,27 +76,29 @@ public partial class UnclaimedActionReminder(
         {
             var gameType = group.Key;
             var count = group.Count();
-            await SendRemindersForGameType(gameType, count, admins).ConfigureAwait(false);
+            var gameTypeString = gameType.ToString();
+
+            // Find head admins, senior admins and webmasters for this game type
+            var recipients = adminItems
+                .Where(up => up.UserProfileClaims.Any(c =>
+                    c.ClaimType == UserProfileClaimType.Webmaster ||
+                    c.ClaimType == UserProfileClaimType.SeniorAdmin ||
+                    (c.ClaimType == UserProfileClaimType.HeadAdmin && c.ClaimValue == gameTypeString)))
+                .ToList();
+
+            if (recipients.Count == 0)
+            {
+                continue;
+            }
+
+            await SendRemindersForGameType(gameType, count, recipients).ConfigureAwait(false);
         }
+
+        LogProcessingCompleted(log);
     }
 
-    private async Task SendRemindersForGameType(GameType gameType, int count, List<UserProfileDto> admins)
+    private async Task SendRemindersForGameType(GameType gameType, int count, List<UserProfileDto> recipients)
     {
-        var gameTypeString = gameType.ToString();
-
-        // Find head admins, senior admins and webmasters for this game type
-        var recipients = admins
-            .Where(up => up.UserProfileClaims.Any(c =>
-                c.ClaimType == UserProfileClaimType.Webmaster ||
-                c.ClaimType == UserProfileClaimType.SeniorAdmin ||
-                (c.ClaimType == UserProfileClaimType.HeadAdmin && c.ClaimValue == gameTypeString)))
-            .ToList();
-
-        if (recipients.Count == 0)
-        {
-            return;
-        }
-
         var title = $"{count} Unclaimed Action{(count > 1 ? "s" : "")} on {gameType}";
         var message = $"There {(count > 1 ? "are" : "is")} {count} unclaimed admin action{(count > 1 ? "s" : "")} that need{(count == 1 ? "s" : "")} review.";
 
