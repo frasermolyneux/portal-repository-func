@@ -171,6 +171,9 @@ public class DataMaintenanceTests
         var fields = Assert.IsAssignableFrom<IEnumerable<KeyValuePair<string, object?>>>(completionLog.Arguments[2])
             .ToDictionary(field => field.Key, field => field.Value);
 
+        Assert.Equal(
+            "VPN detected tag reconciliation completed. Candidates: {Candidates}; Players: {Players}; Added: {TagsAdded}; Removed: {TagsRemoved}; Skipped: {PlayersSkipped}",
+            fields["{OriginalFormat}"]);
         Assert.Equal(10, fields["Candidates"]);
         Assert.Equal(8, fields["Players"]);
         Assert.Equal(3, fields["TagsAdded"]);
