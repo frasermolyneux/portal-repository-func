@@ -14,7 +14,7 @@ using XtremeIdiots.Portal.Repository.App.Services;
 
 namespace XtremeIdiots.Portal.Repository.App.Functions;
 
-public class DataMaintenance
+public partial class DataMaintenance
 {
     private readonly ILogger<DataMaintenance> _log;
     private readonly IRepositoryApiClient _repositoryApiClient;
@@ -140,8 +140,8 @@ public class DataMaintenance
     {
         _log.LogInformation("Reconciling VPN detected player tags");
         var summary = await _vpnDetectedTagReconciler.ReconcileAsync(force, cancellationToken).ConfigureAwait(false);
-        _log.LogInformation(
-            "VPN detected tag reconciliation completed. Candidates: {Candidates}; Players: {Players}; Added: {TagsAdded}; Removed: {TagsRemoved}; Skipped: {PlayersSkipped}",
+        LogVpnDetectedTagReconciliationCompleted(
+            _log,
             summary.Candidates,
             summary.PlayersEvaluated,
             summary.TagsAdded,
@@ -200,4 +200,16 @@ public class DataMaintenance
         return _configuration[key]
             ?? Environment.GetEnvironmentVariable(key.Replace(":", "__"));
     }
+
+    [LoggerMessage(
+        EventId = 0,
+        Level = LogLevel.Information,
+        Message = "VPN detected tag reconciliation completed. Candidates: {Candidates}; Players: {Players}; Added: {TagsAdded}; Removed: {TagsRemoved}; Skipped: {PlayersSkipped}")]
+    private static partial void LogVpnDetectedTagReconciliationCompleted(
+        ILogger logger,
+        int candidates,
+        int players,
+        int tagsAdded,
+        int tagsRemoved,
+        int playersSkipped);
 }
