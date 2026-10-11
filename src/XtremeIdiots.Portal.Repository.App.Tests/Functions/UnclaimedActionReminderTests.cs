@@ -26,12 +26,12 @@ public sealed class UnclaimedActionReminderTests
 
     public UnclaimedActionReminderTests()
     {
-        logger.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
-        Mock.Get(client.Object.AdminActions.V1).Setup(x => x.GetAdminActions(null, null, null, AdminActionFilter.UnclaimedActions, 0, 50, AdminActionOrder.CreatedDesc, It.IsAny<CancellationToken>()))
+        _ = logger.Setup(x => x.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
+        _ = Mock.Get(client.Object.AdminActions.V1).Setup(x => x.GetAdminActions(null, null, null, AdminActionFilter.UnclaimedActions, 0, 50, AdminActionOrder.CreatedDesc, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => Page(actions));
-        Mock.Get(client.Object.UserProfiles.V1).Setup(x => x.GetUserProfiles(null, UserProfileFilter.AnyAdmin, 0, 200, null, It.IsAny<CancellationToken>()))
+        _ = Mock.Get(client.Object.UserProfiles.V1).Setup(x => x.GetUserProfiles(null, UserProfileFilter.AnyAdmin, 0, 200, null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => Page(admins));
-        Mock.Get(client.Object.Notifications.V1).Setup(x => x.CreateNotification(It.IsAny<CreateNotificationDto>(), It.IsAny<CancellationToken>()))
+        _ = Mock.Get(client.Object.Notifications.V1).Setup(x => x.CreateNotification(It.IsAny<CreateNotificationDto>(), It.IsAny<CancellationToken>()))
             .Callback<CreateNotificationDto, CancellationToken>((dto, _) => notifications.Add(dto)).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
     }
 
