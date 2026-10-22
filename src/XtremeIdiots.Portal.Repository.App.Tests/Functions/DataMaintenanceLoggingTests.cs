@@ -116,7 +116,7 @@ public class DataMaintenanceLoggingTests
         Assert.Null(eventId.Name);
         Assert.Null(startLog.Arguments[3]);
 
-        var fields = Assert.IsAssignableFrom<IEnumerable<KeyValuePair<string, object?>>>(startLog.Arguments[2])
+        var fields = Assert.IsType<IEnumerable<KeyValuePair<string, object?>>>(startLog.Arguments[2], exactMatch: false)
             .ToDictionary(field => field.Key, field => field.Value);
         Assert.Equal(StartMessageTemplate, fields["{OriginalFormat}"]);
     }
