@@ -21,6 +21,12 @@ public partial class DataMaintenance
     private readonly IConfiguration _configuration;
     private readonly IVpnDetectedTagReconciler _vpnDetectedTagReconciler;
 
+    private static readonly Action<ILogger, Exception?> LogVpnDetectedTagReconciliationStarting =
+        LoggerMessage.Define(
+            LogLevel.Information,
+            new EventId(0),
+            "Reconciling VPN detected player tags");
+
     public DataMaintenance(
         ILogger<DataMaintenance> log,
         IRepositoryApiClient repositoryApiClient,
@@ -138,7 +144,7 @@ public partial class DataMaintenance
 
     private async Task RunReconcileVpnDetectedTagsAsync(bool force, CancellationToken cancellationToken)
     {
-        _log.LogInformation("Reconciling VPN detected player tags");
+        LogVpnDetectedTagReconciliationStarting(_log, null);
         var summary = await _vpnDetectedTagReconciler.ReconcileAsync(force, cancellationToken).ConfigureAwait(false);
         LogVpnDetectedTagReconciliationCompleted(
             _log,
