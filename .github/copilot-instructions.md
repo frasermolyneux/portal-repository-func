@@ -7,3 +7,7 @@
 - Azure App Configuration is optional and loads repository, GeoLocation, application, and Application Insights keys by environment label; Key Vault references use `DefaultAzureCredential`.
 - Repository-client L1 caching uses library defaults. Current reads are advisory and mutations remain uncached; do not introduce read-then-write correctness that depends on fresh cached data.
 - Terraform provisions the Function App, storage, role assignment, and health alerting using an azurerm backend and dev/prd inputs, while consuming platform and portal remote-state outputs. Preserve those interfaces.
+
+## Terraform toolchain
+
+Commit each root's `.terraform-version` and `.terraform.lock.hcl`. Select the exact root CLI pin before invoking Terraform; normal initialization uses `-lockfile=readonly`. Regenerate provider selections only in a reviewed dependency-update PR; never commit state, plans, or `.terraform/`.
