@@ -39,3 +39,6 @@ Run Terraform init/validate/plan only for infrastructure work, with matching `te
 - `src/XtremeIdiots.Portal.Repository.App\Functions`
 - `src/XtremeIdiots.Portal.Repository.App\Services`
 - `docs/development-workflows.md`
+
+
+CI-only main pushes run change detection but skip cloud/backend deployment jobs. Automatic deployment requires a change to the workload inputs already declared by the deployment filters; scheduled maintenance and explicit workflow dispatch retain their existing behavior. A deployment-workflow-only change requires explicit dispatch to exercise cloud operations.
