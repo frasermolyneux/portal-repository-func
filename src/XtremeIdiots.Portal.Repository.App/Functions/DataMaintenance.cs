@@ -8,6 +8,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MX.Api.Abstractions;
 
 using XtremeIdiots.Portal.Repository.Api.Client.V1;
 using XtremeIdiots.Portal.Repository.App.Services;
@@ -42,61 +43,83 @@ public partial class DataMaintenance
     [Function(nameof(RunPruneChatMessagesHttp))]
     public async Task<HttpResponseData> RunPruneChatMessagesHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
     {
-        await RunPruneChatMessages(null).ConfigureAwait(false);
+        await RunPruneChatMessages(null, context.CancellationToken).ConfigureAwait(false);
         return req.CreateResponse(HttpStatusCode.OK);
     }
 
     [Function(nameof(RunPruneChatMessages))]
-    public async Task RunPruneChatMessages([TimerTrigger("0 0 * * * *")] TimerInfo? myTimer)
+    public async Task RunPruneChatMessages([TimerTrigger("0 0 * * * *")] TimerInfo? myTimer, CancellationToken cancellationToken = default)
     {
         _log.LogInformation("Pruning Chat Messages");
-        await _repositoryApiClient.DataMaintenance.V1.PruneChatMessages().ConfigureAwait(false);
-        _log.LogInformation("Prune Chat Messages completed successfully");
+        await RunPruneAsync("Chat Messages", _repositoryApiClient.DataMaintenance.V1.PruneChatMessages, cancellationToken).ConfigureAwait(false);
     }
 
     [Function(nameof(RunPruneGameServerEventsHttp))]
     public async Task<HttpResponseData> RunPruneGameServerEventsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
     {
-        await RunPruneGameServerEvents(null).ConfigureAwait(false);
+        await RunPruneGameServerEvents(null, context.CancellationToken).ConfigureAwait(false);
         return req.CreateResponse(HttpStatusCode.OK);
     }
 
     [Function(nameof(RunPruneGameServerEvents))]
-    public async Task RunPruneGameServerEvents([TimerTrigger("0 0 1 * * *")] TimerInfo? myTimer)
+    public async Task RunPruneGameServerEvents([TimerTrigger("0 */15 * * * *")] TimerInfo? myTimer, CancellationToken cancellationToken = default)
     {
         _log.LogInformation("Pruning Game Server Events");
-        await _repositoryApiClient.DataMaintenance.V1.PruneGameServerEvents().ConfigureAwait(false);
-        _log.LogInformation("Prune Game Server Events completed successfully");
+        await RunPruneAsync("Game Server Events", _repositoryApiClient.DataMaintenance.V1.PruneGameServerEvents, cancellationToken).ConfigureAwait(false);
     }
 
     [Function(nameof(RunPruneGameServerStatsHttp))]
     public async Task<HttpResponseData> RunPruneGameServerStatsHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
     {
-        await RunPruneGameServerStats(null).ConfigureAwait(false);
+        await RunPruneGameServerStats(null, context.CancellationToken).ConfigureAwait(false);
         return req.CreateResponse(HttpStatusCode.OK);
     }
 
     [Function(nameof(RunPruneGameServerStats))]
-    public async Task RunPruneGameServerStats([TimerTrigger("0 0 2 * * *")] TimerInfo? myTimer)
+    public async Task RunPruneGameServerStats([TimerTrigger("0 0 2 * * *")] TimerInfo? myTimer, CancellationToken cancellationToken = default)
     {
         _log.LogInformation("Pruning Game Server Stats");
-        await _repositoryApiClient.DataMaintenance.V1.PruneGameServerStats().ConfigureAwait(false);
-        _log.LogInformation("Prune Game Server Stats completed successfully");
+        await RunPruneAsync("Game Server Stats", _repositoryApiClient.DataMaintenance.V1.PruneGameServerStats, cancellationToken).ConfigureAwait(false);
     }
 
     [Function(nameof(RunPrunePlayerIpAddressesHttp))]
     public async Task<HttpResponseData> RunPrunePlayerIpAddressesHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
     {
-        await RunPrunePlayerIpAddresses(null).ConfigureAwait(false);
+        await RunPrunePlayerIpAddresses(null, context.CancellationToken).ConfigureAwait(false);
         return req.CreateResponse(HttpStatusCode.OK);
     }
 
     [Function(nameof(RunPrunePlayerIpAddresses))]
-    public async Task RunPrunePlayerIpAddresses([TimerTrigger("0 30 2 * * *")] TimerInfo? myTimer)
+    public async Task RunPrunePlayerIpAddresses([TimerTrigger("0 30 2 * * *")] TimerInfo? myTimer, CancellationToken cancellationToken = default)
     {
         _log.LogInformation("Pruning Player IP Addresses");
-        await _repositoryApiClient.DataMaintenance.V1.PrunePlayerIpAddresses().ConfigureAwait(false);
-        _log.LogInformation("Prune Player IP Addresses completed successfully");
+        await RunPruneAsync("Player IP Addresses", _repositoryApiClient.DataMaintenance.V1.PrunePlayerIpAddresses, cancellationToken).ConfigureAwait(false);
+    }
+
+    private async Task RunPruneAsync(string name, Func<CancellationToken, Task<ApiResult>> prune, CancellationToken cancellationToken)
+    {
+        for (var attempt = 0; attempt < 5; attempt++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var result = await prune(cancellationToken).ConfigureAwait(false);
+            if (!result.IsSuccess)
+            {
+                throw new InvalidOperationException($"Prune {name} failed with HTTP {(int)result.StatusCode}.");
+            }
+
+            if (result.StatusCode == HttpStatusCode.OK)
+            {
+                _log.LogInformation("Prune {MaintenanceName} completed successfully", name);
+                return;
+            }
+
+            if (result.StatusCode != HttpStatusCode.Accepted)
+            {
+                throw new InvalidOperationException($"Prune {name} returned unexpected HTTP {(int)result.StatusCode}.");
+            }
+        }
+
+        _log.LogWarning("Prune {MaintenanceName} committed bounded progress; more work remains for the next scheduled invocation", name);
     }
 
     [Function(nameof(RunResetSystemAssignedPlayerTagsHttp))]
