@@ -213,4 +213,66 @@ public class DataMaintenanceTests
         dataMaintenanceApi.Setup(x => x.ResetSystemAssignedPlayerTags(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
         return repositoryApiClientMock;
     }
+
+    [Fact]
+    public async Task RunPruneGameServerEvents_ContinuesAcceptedBatchesUntilCompleted()
+    {
+        var client = CreateRepositoryApiClientMock();
+        var api = Mock.Get(client.Object.DataMaintenance.V1);
+        api.SetupSequence(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResult(HttpStatusCode.Accepted))
+            .ReturnsAsync(new ApiResult(HttpStatusCode.OK));
+        var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
+        using var cancellation = new CancellationTokenSource();
+
+        await sut.RunPruneGameServerEvents(null, cancellation.Token);
+
+        api.Verify(x => x.PruneGameServerEvents(cancellation.Token), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task RunPruneGameServerEvents_LeavesBacklogForNextInvocationAtRequestLimit()
+    {
+        var client = CreateRepositoryApiClientMock();
+        var api = Mock.Get(client.Object.DataMaintenance.V1);
+        api.Setup(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResult(HttpStatusCode.Accepted));
+        var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
+
+        await sut.RunPruneGameServerEvents(null);
+
+        api.Verify(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()), Times.Exactly(5));
+        Assert.DoesNotContain(_loggerMock.Invocations, x => x.Method.Name == "Log"
+            && x.Arguments[2]?.ToString()?.Contains("completed successfully", StringComparison.Ordinal) == true);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.InternalServerError)]
+    [InlineData(HttpStatusCode.Forbidden)]
+    public async Task RunPruneGameServerEvents_FailedApiResultFailsInvocation(HttpStatusCode status)
+    {
+        var client = CreateRepositoryApiClientMock();
+        Mock.Get(client.Object.DataMaintenance.V1)
+            .Setup(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResult(status));
+        var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.RunPruneGameServerEvents(null));
+
+        Assert.DoesNotContain(_loggerMock.Invocations, x => x.Method.Name == "Log"
+            && x.Arguments[2]?.ToString()?.Contains("completed successfully", StringComparison.Ordinal) == true);
+    }
+
+    [Fact]
+    public async Task RunPruneGameServerEvents_PropagatesCancellationWithoutCallingApi()
+    {
+        var client = CreateRepositoryApiClientMock();
+        var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
+            sut.RunPruneGameServerEvents(null, new CancellationToken(true)));
+
+        Mock.Get(client.Object.DataMaintenance.V1)
+            .Verify(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()), Times.Never);
+    }
 }

@@ -15,6 +15,18 @@
 ## Overview
 Azure Functions isolated app (.NET 10) that keeps XtremeIdiots Portal repository data fresh. Timer and HTTP-triggered jobs prune historical chat/events/stats, rebuild map popularity, snapshot live server telemetry, and synchronize ban/log file metadata across Call of Duty and Insurgency servers. Integrates the Repository, Servers Integration, and GeoLocation API clients, enriching live player data with geo lookups while emitting Application Insights telemetry and caching frequent lookups.
 
+## Retention execution
+
+Game-server events retain 30 days and are pruned every 15 minutes. Unlocked chat
+retains six months; locked messages are preserved. Other retention schedules and
+periods remain unchanged.
+
+Retention jobs share bounded continuation: the Repository API commits small
+batches and returns HTTP 202 while work may remain. Each Function makes at most
+five requests, reports pending progress at that limit, and resumes on its next
+scheduled invocation. Failed API results fail the invocation instead of logging
+success. Deploy the compatible Repository API before these Functions.
+
 ## Contributing
 Please read the [contributing](CONTRIBUTING.md) guidance; this is a learning and development project.
 
