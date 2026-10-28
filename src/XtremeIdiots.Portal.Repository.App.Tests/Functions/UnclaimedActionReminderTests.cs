@@ -41,7 +41,7 @@ public sealed class UnclaimedActionReminderTests
     public async Task Run_QueryException_PropagatesWithoutSending(bool adminQuery)
     {
         var failure = new InvalidOperationException("query failed");
-        Mock.Get(client.Object.UserProfiles.V1).Setup(x => x.GetUserProfiles(null, UserProfileFilter.AnyAdmin, 0, 200, null, It.IsAny<CancellationToken>()))
+        _ = Mock.Get(client.Object.UserProfiles.V1).Setup(x => x.GetUserProfiles(null, UserProfileFilter.AnyAdmin, 0, 200, null, It.IsAny<CancellationToken>()))
             .Returns(() => adminQuery ? Task.FromException<ApiResult<CollectionModel<UserProfileDto>>>(failure) : Task.FromResult(Page(admins)));
         Mock.Get(client.Object.AdminActions.V1).Setup(x => x.GetAdminActions(null, null, null, AdminActionFilter.UnclaimedActions, 0, 50, AdminActionOrder.CreatedDesc, It.IsAny<CancellationToken>()))
             .Returns(() => adminQuery ? Task.FromResult(Page(actions)) : Task.FromException<ApiResult<CollectionModel<AdminActionDto>>>(failure));
