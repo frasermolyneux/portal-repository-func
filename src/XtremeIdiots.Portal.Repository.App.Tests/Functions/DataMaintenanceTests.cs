@@ -326,7 +326,7 @@ public class DataMaintenanceTests
             && fields.Any(field => field.Key == "{OriginalFormat}"
                 && field.Value?.ToString() == PruneCompletionMessageTemplate));
         var eventId = Assert.IsType<EventId>(completionLog.Arguments[1]);
-        var fields = Assert.IsAssignableFrom<IEnumerable<KeyValuePair<string, object?>>>(completionLog.Arguments[2])
+        var fields = Assert.IsType<IEnumerable<KeyValuePair<string, object?>>>(completionLog.Arguments[2], exactMatch: false)
             .ToDictionary(field => field.Key, field => field.Value);
 
         Assert.Equal(LogLevel.Information, completionLog.Arguments[0]);
