@@ -22,6 +22,12 @@ public partial class DataMaintenance
     private readonly IConfiguration _configuration;
     private readonly IVpnDetectedTagReconciler _vpnDetectedTagReconciler;
 
+    private static readonly Action<ILogger, string, Exception?> LogPruneCompleted =
+        LoggerMessage.Define<string>(
+            LogLevel.Information,
+            new EventId(0),
+            "Prune {MaintenanceName} completed successfully");
+
     private static readonly Action<ILogger, Exception?> LogVpnDetectedTagReconciliationStarting =
         LoggerMessage.Define(
             LogLevel.Information,
@@ -109,7 +115,7 @@ public partial class DataMaintenance
 
             if (result.StatusCode == HttpStatusCode.OK)
             {
-                _log.LogInformation("Prune {MaintenanceName} completed successfully", name);
+                LogPruneCompleted(_log, name, null);
                 return;
             }
 

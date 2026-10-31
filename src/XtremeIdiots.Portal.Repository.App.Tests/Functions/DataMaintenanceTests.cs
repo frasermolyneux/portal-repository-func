@@ -16,6 +16,8 @@ namespace XtremeIdiots.Portal.Repository.App.Tests.Functions;
 
 public class DataMaintenanceTests
 {
+    private const string PruneCompletionMessageTemplate = "Prune {MaintenanceName} completed successfully";
+
     private readonly Mock<ILogger<DataMaintenance>> _loggerMock = new();
     private readonly IConfiguration _configuration = new ConfigurationBuilder().Build();
     private readonly Mock<IVpnDetectedTagReconciler> _vpnDetectedTagReconciler = new();
@@ -219,15 +221,55 @@ public class DataMaintenanceTests
     {
         var client = CreateRepositoryApiClientMock();
         var api = Mock.Get(client.Object.DataMaintenance.V1);
-        api.SetupSequence(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ApiResult(HttpStatusCode.Accepted))
-            .ReturnsAsync(new ApiResult(HttpStatusCode.OK));
+        _ = _loggerMock.Setup(x => x.IsEnabled(LogLevel.Information)).Returns(true);
+        var apiCalls = 0;
+        api.Setup(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()))
+            .Returns((CancellationToken _) =>
+            {
+                apiCalls++;
+                if (apiCalls == 2)
+                {
+                    AssertNoPruneCompletionLog(_loggerMock);
+                }
+
+                var status = apiCalls == 1 ? HttpStatusCode.Accepted : HttpStatusCode.OK;
+                return Task.FromResult(new ApiResult(status));
+            });
         var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
         using var cancellation = new CancellationTokenSource();
 
         await sut.RunPruneGameServerEvents(null, cancellation.Token);
 
         api.Verify(x => x.PruneGameServerEvents(cancellation.Token), Times.Exactly(2));
+        AssertPruneCompletionLog(_loggerMock);
+    }
+
+    [Fact]
+    public async Task RunPruneGameServerEvents_LogsCompletionForImmediateOk()
+    {
+        var client = CreateRepositoryApiClientMock();
+        _ = _loggerMock.Setup(x => x.IsEnabled(LogLevel.Information)).Returns(true);
+        var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
+
+        await sut.RunPruneGameServerEvents(null);
+
+        Mock.Get(client.Object.DataMaintenance.V1)
+            .Verify(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()), Times.Once);
+        AssertPruneCompletionLog(_loggerMock);
+    }
+
+    [Fact]
+    public async Task RunPruneGameServerEvents_WhenInformationLoggingDisabled_DoesNotLogCompletion()
+    {
+        var client = CreateRepositoryApiClientMock();
+        _ = _loggerMock.Setup(x => x.IsEnabled(LogLevel.Information)).Returns(false);
+        var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
+
+        await sut.RunPruneGameServerEvents(null);
+
+        Mock.Get(client.Object.DataMaintenance.V1)
+            .Verify(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()), Times.Once);
+        AssertNoPruneCompletionLog(_loggerMock);
     }
 
     [Fact]
@@ -237,13 +279,13 @@ public class DataMaintenanceTests
         var api = Mock.Get(client.Object.DataMaintenance.V1);
         api.Setup(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResult(HttpStatusCode.Accepted));
+        _ = _loggerMock.Setup(x => x.IsEnabled(LogLevel.Information)).Returns(true);
         var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
 
         await sut.RunPruneGameServerEvents(null);
 
         api.Verify(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()), Times.Exactly(5));
-        Assert.DoesNotContain(_loggerMock.Invocations, x => x.Method.Name == "Log"
-            && x.Arguments[2]?.ToString()?.Contains("completed successfully", StringComparison.Ordinal) == true);
+        AssertNoPruneCompletionLog(_loggerMock);
     }
 
     [Theory]
@@ -255,12 +297,12 @@ public class DataMaintenanceTests
         Mock.Get(client.Object.DataMaintenance.V1)
             .Setup(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new ApiResult(status));
+        _ = _loggerMock.Setup(x => x.IsEnabled(LogLevel.Information)).Returns(true);
         var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => sut.RunPruneGameServerEvents(null));
 
-        Assert.DoesNotContain(_loggerMock.Invocations, x => x.Method.Name == "Log"
-            && x.Arguments[2]?.ToString()?.Contains("completed successfully", StringComparison.Ordinal) == true);
+        AssertNoPruneCompletionLog(_loggerMock);
     }
 
     [Fact]
@@ -274,5 +316,34 @@ public class DataMaintenanceTests
 
         Mock.Get(client.Object.DataMaintenance.V1)
             .Verify(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static void AssertPruneCompletionLog(Mock<ILogger<DataMaintenance>> logger)
+    {
+        var completionLog = Assert.Single(logger.Invocations, invocation =>
+            invocation.Method.Name == "Log"
+            && invocation.Arguments[2] is IEnumerable<KeyValuePair<string, object?>> fields
+            && fields.Any(field => field.Key == "{OriginalFormat}"
+                && field.Value?.ToString() == PruneCompletionMessageTemplate));
+        var eventId = Assert.IsType<EventId>(completionLog.Arguments[1]);
+        var fields = Assert.IsType<IEnumerable<KeyValuePair<string, object?>>>(completionLog.Arguments[2], exactMatch: false)
+            .ToDictionary(field => field.Key, field => field.Value);
+
+        Assert.Equal(LogLevel.Information, completionLog.Arguments[0]);
+        Assert.Equal(0, eventId.Id);
+        Assert.Null(eventId.Name);
+        Assert.Equal("Prune Game Server Events completed successfully", completionLog.Arguments[2]?.ToString());
+        Assert.Equal("Game Server Events", fields["MaintenanceName"]);
+        Assert.Equal(PruneCompletionMessageTemplate, fields["{OriginalFormat}"]);
+        Assert.Null(completionLog.Arguments[3]);
+    }
+
+    private static void AssertNoPruneCompletionLog(Mock<ILogger<DataMaintenance>> logger)
+    {
+        Assert.DoesNotContain(logger.Invocations, invocation =>
+            invocation.Method.Name == "Log"
+            && invocation.Arguments[2] is IEnumerable<KeyValuePair<string, object?>> fields
+            && fields.Any(field => field.Key == "{OriginalFormat}"
+                && field.Value?.ToString() == PruneCompletionMessageTemplate));
     }
 }
