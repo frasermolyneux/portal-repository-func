@@ -6,8 +6,9 @@ resource "azurerm_storage_account" "function_app_storage" {
 
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  account_kind             = "StorageV2"
-  access_tier              = "Hot"
+  account_kind                    = "StorageV2"
+  access_tier                     = "Hot"
+  allow_nested_items_to_be_public = false
 
   https_traffic_only_enabled = true
   min_tls_version            = "TLS1_2"
