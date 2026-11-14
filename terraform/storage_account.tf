@@ -4,8 +4,8 @@ resource "azurerm_storage_account" "function_app_storage" {
   resource_group_name = data.azurerm_resource_group.rg.name
   location            = data.azurerm_resource_group.rg.location
 
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
+  account_tier                    = "Standard"
+  account_replication_type        = "LRS"
   account_kind                    = "StorageV2"
   access_tier                     = "Hot"
   allow_nested_items_to_be_public = false
