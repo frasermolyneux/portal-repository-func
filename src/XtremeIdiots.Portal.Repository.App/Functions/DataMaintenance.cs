@@ -102,6 +102,20 @@ public partial class DataMaintenance
         await RunPruneAsync("Player IP Addresses", _repositoryApiClient.DataMaintenance.V1.PrunePlayerIpAddresses, cancellationToken).ConfigureAwait(false);
     }
 
+    [Function(nameof(RunPruneSiegeModeHttp))]
+    public async Task<HttpResponseData> RunPruneSiegeModeHttp([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req, FunctionContext context)
+    {
+        await RunPruneSiegeMode(null, context.CancellationToken).ConfigureAwait(false);
+        return req.CreateResponse(HttpStatusCode.OK);
+    }
+
+    [Function(nameof(RunPruneSiegeMode))]
+    public async Task RunPruneSiegeMode([TimerTrigger("0 */15 * * * *")] TimerInfo? myTimer, CancellationToken cancellationToken = default)
+    {
+        _log.LogInformation("Pruning Siege Mode Data");
+        await RunPruneAsync("Siege Mode", _repositoryApiClient.DataMaintenance.V1.PruneSiegeMode, cancellationToken).ConfigureAwait(false);
+    }
+
     private async Task RunPruneAsync(string name, Func<CancellationToken, Task<ApiResult>> prune, CancellationToken cancellationToken)
     {
         for (var attempt = 0; attempt < 5; attempt++)
