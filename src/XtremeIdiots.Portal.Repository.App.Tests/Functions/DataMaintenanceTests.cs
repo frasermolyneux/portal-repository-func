@@ -3,6 +3,7 @@ using System.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 
 using Moq;
 
@@ -126,6 +127,38 @@ public class DataMaintenanceTests
     }
 
     [Fact]
+    public async Task RunPruneSiegeMode_ShouldCallPruneSiegeMode()
+    {
+        var repositoryApiClientMock = CreateRepositoryApiClientMock();
+        var sut = new DataMaintenance(_loggerMock.Object, repositoryApiClientMock.Object, _configuration, _vpnDetectedTagReconciler.Object);
+
+        await sut.RunPruneSiegeMode(null);
+
+        Mock.Get(repositoryApiClientMock.Object.DataMaintenance.V1)
+            .Verify(x => x.PruneSiegeMode(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RunPruneSiegeModeHttp_UsesSharedMaintenancePathAndCancellation()
+    {
+        var client = CreateRepositoryApiClientMock();
+        using var cancellation = new CancellationTokenSource();
+        var context = new Mock<FunctionContext>();
+        context.SetupGet(x => x.CancellationToken).Returns(cancellation.Token);
+        var request = new Mock<HttpRequestData>(context.Object);
+        var response = new Mock<HttpResponseData>(context.Object);
+        response.SetupProperty(x => x.StatusCode);
+        request.Setup(x => x.CreateResponse()).Returns(response.Object);
+        var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
+
+        var result = await sut.RunPruneSiegeModeHttp(request.Object, context.Object);
+
+        Assert.Equal(HttpStatusCode.OK, result.StatusCode);
+        Mock.Get(client.Object.DataMaintenance.V1)
+            .Verify(x => x.PruneSiegeMode(cancellation.Token), Times.Once);
+    }
+
+    [Fact]
     public async Task RunResetSystemAssignedPlayerTags_ShouldCallResetSystemAssignedPlayerTags()
     {
         var repositoryApiClientMock = CreateRepositoryApiClientMock();
@@ -212,6 +245,7 @@ public class DataMaintenanceTests
         dataMaintenanceApi.Setup(x => x.PruneGameServerEvents(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
         dataMaintenanceApi.Setup(x => x.PruneGameServerStats(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
         dataMaintenanceApi.Setup(x => x.PrunePlayerIpAddresses(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
+        dataMaintenanceApi.Setup(x => x.PruneSiegeMode(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
         dataMaintenanceApi.Setup(x => x.ResetSystemAssignedPlayerTags(It.IsAny<CancellationToken>())).ReturnsAsync(new ApiResult(HttpStatusCode.OK));
         return repositoryApiClientMock;
     }
@@ -242,6 +276,39 @@ public class DataMaintenanceTests
 
         api.Verify(x => x.PruneGameServerEvents(cancellation.Token), Times.Exactly(2));
         AssertPruneCompletionLog(_loggerMock);
+    }
+
+    [Fact]
+    public async Task RunPruneSiegeMode_ContinuesAcceptedBatchesUntilCompleted()
+    {
+        var client = CreateRepositoryApiClientMock();
+        var api = Mock.Get(client.Object.DataMaintenance.V1);
+        var apiCalls = 0;
+        api.Setup(x => x.PruneSiegeMode(It.IsAny<CancellationToken>()))
+            .Returns((CancellationToken _) =>
+            {
+                apiCalls++;
+                var status = apiCalls == 1 ? HttpStatusCode.Accepted : HttpStatusCode.OK;
+                return Task.FromResult(new ApiResult(status));
+            });
+        var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
+        using var cancellation = new CancellationTokenSource();
+
+        await sut.RunPruneSiegeMode(null, cancellation.Token);
+
+        api.Verify(x => x.PruneSiegeMode(cancellation.Token), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task RunPruneSiegeMode_WhenApiFails_PropagatesFailure()
+    {
+        var client = CreateRepositoryApiClientMock();
+        Mock.Get(client.Object.DataMaintenance.V1)
+            .Setup(x => x.PruneSiegeMode(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ApiResult(HttpStatusCode.InternalServerError));
+        var sut = new DataMaintenance(_loggerMock.Object, client.Object, _configuration, _vpnDetectedTagReconciler.Object);
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => sut.RunPruneSiegeMode(null));
     }
 
     [Fact]

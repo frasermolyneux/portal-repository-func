@@ -21,6 +21,11 @@ Game-server events retain 30 days and are pruned every 15 minutes. Unlocked chat
 retains six months; locked messages are preserved. Other retention schedules and
 periods remain unchanged.
 
+Siege Mode maintenance runs every 15 minutes to finalize expired sessions and
+release temporary baseline membership. It prunes ended sessions and their events,
+checks and actions after 365 days. Session reads and action claims enforce expiry
+independently of the maintenance schedule.
+
 Retention jobs share bounded continuation: the Repository API commits small
 batches and returns HTTP 202 while work may remain. Each Function makes at most
 five requests, reports pending progress at that limit, and resumes on its next
